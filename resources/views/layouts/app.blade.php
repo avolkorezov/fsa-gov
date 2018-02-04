@@ -133,7 +133,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/js/app.js"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script>
         $(function () {
@@ -154,7 +154,7 @@
         });
 
     </script>
-    <script src="/js/jquery.scrollToTop.min.js"></script>
+    <script src="{{ asset('js/jquery.scrollToTop.min.js') }}"></script>
     <a href="#top" id="toTop"></a>
     @stack('scripts')
 </body>
