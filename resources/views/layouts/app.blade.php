@@ -99,8 +99,8 @@
                                 </ul>
                             </li>
                             @if (Auth::user()->id == 1 )
-                                <li><a href="{{ url('/proxy') }}"><span class="glyphicon glyphicon-list-alt"></span> Списки прокси и user-agent</a></li>
-                                <li><a href="{{ url('/process-log') }}"><span class="glyphicon glyphicon-time"></span> Процессы</a></li>
+                                {{--<li><a href="{{ url('/proxy') }}"><span class="glyphicon glyphicon-list-alt"></span> Списки прокси и user-agent</a></li>--}}
+                                {{--<li><a href="{{ url('/process-log') }}"><span class="glyphicon glyphicon-time"></span> Процессы</a></li>--}}
                                 <li><a href="{{ url('/logs') }}">Логи</a></li>
                             @endif
                             <li class="dropdown">
