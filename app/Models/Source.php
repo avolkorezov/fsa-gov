@@ -32,6 +32,8 @@ use Illuminate\Support\Facades\DB;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Source whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Source whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Source whereVersion($value)
+ * @property string $param
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Source whereParam($value)
  */
 class Source extends Model
 {
@@ -47,6 +49,7 @@ class Source extends Model
         'hash',
         'source',
         'parseit',
+        'param',
         'version',
         'available'
     ];
@@ -55,7 +58,6 @@ class Source extends Model
     {
         return [
             'donor_class_name' => 'required',
-            'name' => 'required',
             'hash' => 'required',
             'source' => 'required',
         ];
@@ -88,6 +90,7 @@ class Source extends Model
                     'hash' => $attr['hash'],
                     'image' => empty(@$attr['image']) ? $model->image : $attr['image'],
                     'desc' => empty(@$attr['desc']) ? $model->desc : $attr['desc'],
+                    'param' => empty(@$attr['param']) ? serialize('') : serialize(@$attr['param']),
                     'available' => 1,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
@@ -96,10 +99,11 @@ class Source extends Model
         if ( $model = static::where(['hash' => $attr['hash']])->get()->first() )
         {
             $model->update([
-                'name' => $attr['name'],
-                'hash' => $attr['hash'],
-                'image' => empty(@$attr['image']) ? $model->image : $attr['image'],
-                'desc' => empty(@$attr['desc']) ? $model->desc : $attr['desc'],
+                'name' => @$attr['name'],
+                'hash' => @$attr['hash'],
+                'image' => empty(@$attr['image']) ? $model->image : @$attr['image'],
+                'desc' => empty(@$attr['desc']) ? $model->desc : @$attr['desc'],
+                'param' => empty(@$attr['param']) ? serialize('') : serialize(@$attr['param']),
                 'available' => 1,
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
@@ -112,6 +116,7 @@ class Source extends Model
                 'name' => $attr['name'],
                 'image' => empty(@$attr['image']) ? null : $attr['image'],
                 'desc' => empty(@$attr['desc']) ? null : $attr['desc'],
+                'param' => empty(@$attr['param']) ? serialize('') : serialize(@$attr['param']),
                 'hash' => $attr['hash'],
                 'source' => $attr['source'],
                 'created_at' => date('Y-m-d H:i:s'),
