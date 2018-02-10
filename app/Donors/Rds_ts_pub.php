@@ -321,7 +321,7 @@ Class Rds_ts_pub extends simpleParser {
         $img = "http://188.254.71.82/".$this->project."/".$nokogiri->get("form img")->toArray()[0]['src'];
         $api = new \ImageToText();
         $api->setVerboseMode(true);
-        $api->setKey("796a951c921fd7780e55747860cfeb2f");
+        $api->setKey(env('ANTI_CAPTCHA_KEY', ''));
         $hash = md5($img);
         $filename = \App::basePath()."/storage/".$hash.".png";
         $opt['cookieFile'] = $this->cookieFile;

@@ -1,6 +1,7 @@
 /node_modules
 /storage/*.key
 /storage/*.png
+/app/Donors/cookie
 /vendor
 /.idea
 Homestead.json
