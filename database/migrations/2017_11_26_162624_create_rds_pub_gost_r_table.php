@@ -103,7 +103,6 @@ class CreateRdsPubGostRTable extends Migration
             $table->text('a_date_finish')->nullable()->comment('Реквизиты сертификата. Дата окончания действия');
             $table->text('a_is_date_finish')->nullable()->comment('Реквизиты сертификата. Без срока действия');
             $table->timestamps();
-            file_get_contents(env('APP_URL').'/parseit/all-sources');
         });
     }
 
