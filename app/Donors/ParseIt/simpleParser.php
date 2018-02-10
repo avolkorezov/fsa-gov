@@ -159,7 +159,7 @@ Class simpleParser
         //curl_setopt($ch, CURLOPT_AUTOREFERER, true);
 
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+//        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
         if (!empty(@$opt['cookieFile']))
         {
             $dir = dirname($opt['cookieFile']);
