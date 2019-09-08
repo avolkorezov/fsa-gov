@@ -99,8 +99,8 @@
                                 </ul>
                             </li>
                             @if (Auth::user()->id == 1 )
-                                <li><a href="{{ url('/proxy') }}"><span class="glyphicon glyphicon-list-alt"></span> Списки прокси и user-agent</a></li>
-                                <li><a href="{{ url('/process-log') }}"><span class="glyphicon glyphicon-time"></span> Процессы</a></li>
+                                {{--<li><a href="{{ url('/proxy') }}"><span class="glyphicon glyphicon-list-alt"></span> Списки прокси и user-agent</a></li>--}}
+                                {{--<li><a href="{{ url('/process-log') }}"><span class="glyphicon glyphicon-time"></span> Процессы</a></li>--}}
                                 <li><a href="{{ url('/logs') }}">Логи</a></li>
                             @endif
                             <li class="dropdown">
@@ -133,7 +133,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/js/app.js"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script>
         $(function () {
@@ -154,7 +154,7 @@
         });
 
     </script>
-    <script src="/js/jquery.scrollToTop.min.js"></script>
+    <script src="{{ asset('js/jquery.scrollToTop.min.js') }}"></script>
     <a href="#top" id="toTop"></a>
     @stack('scripts')
 </body>

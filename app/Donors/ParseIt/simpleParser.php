@@ -67,6 +67,10 @@ Class simpleParser
     public function loadUrl($url, $opts = [])
     {
         $response = static::load($url, $opts);
+        if ( isset($opts['returnHeader']) )
+        {
+            return $response;
+        }
         $content = $response['data'];
         if ( !$content )
         {
@@ -160,6 +164,8 @@ Class simpleParser
 
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         if (!empty(@$opt['cookieFile']))
         {
             $dir = dirname($opt['cookieFile']);

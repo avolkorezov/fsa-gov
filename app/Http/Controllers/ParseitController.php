@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Donors\Rao_rf_pub;
+use App\Donors\Rao_rf_pub_new;
 use App\Donors\Rds_pub_gost_r;
 use App\Donors\Rds_rf_pub;
 use App\Donors\Rds_ts_pub;
+use App\Donors\Rds_ts_pub_new;
 use App\Donors\Rss_pub_gost_r;
 use App\Donors\Rss_rf_pub;
+use App\Donors\Rss_rf_ts_gost_pub;
 use App\Donors\Rss_ts_pub;
 use App\Models\Datum;
 use App\Models\RaoRfPub;
@@ -105,454 +107,578 @@ class ParseitController extends Controller
         ]);
     }
 
-    public function rao_rf_pub(Request $request)
+    public function getSources(Request $request)
     {
-        set_time_limit(0);
-        $donorClassName = 'Rao_rf_pub';
-        $donor = new Rao_rf_pub();
-        $opt['cookieFile'] = $donor->cookieFile;
-        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $currPage = 0;
-        do
+        if (isset($request->reestr) && !empty($request->reestr))
         {
-            $nextPage = $currPage + 1;
-            $opt['post'] = [
-                'ajax' => 'main',
-                'action' => 'search',
-                'input_2_begin' => date('d.m.Y', time()-(31*24*60*60)),
-//                'input_2_begin' => date('d.m.Y', 0),
-                'input_2_end' => date('d.m.Y'),
-                'html_id' => 'innertube',
-                'ajaxId' => '2194787380',
-                'page_noid_' => $currPage,
-                'pageGoid_' => $nextPage,
-                'sortid_' => 'DESC',
-                'page_byid_' => 50
-            ];
-            $opt['referer'] = $donor->source;
-            $opt['origin'] = 'http://188.254.71.82';
-            $opt['host'] = '188.254.71.82';
-            $content = $donor->loadUrl($donor->source, $opt);
-            $content = preg_replace( "%windows-1251%is", 'UTF-8', $content );
-            $content = iconv('windows-1251', 'UTF-8', $content);
-            if ( preg_match('%checkedVal\((\d+)\)\;%uis', $content, $match) )
+            if ( $source = Source::where('donor_class_name', 'like', $request->reestr)->first() )
             {
-                $countPage = $match[1];
-                if ( $countPage-1 > $currPage )
+                $class = "App\\Donors\\{$source->donor_class_name}";
+                $donor = new $class();
+                $donor->cookieFile = ParserController::getCookieFileName($source->donor_class_name);
+                $opt['cookieFile'] = $donor->cookieFile;
+                $opt = $request->toArray();
+                $sources = $donor->getSources($opt);
+                print_r(count($sources));
+                foreach ( $sources as $s )
                 {
-                    $currPage++;
-                }
-            }
-            if ( $rows = $donor->getData($content, $donor->source, $opt) )
-            {
-//                print_r($rows);
-                foreach ($rows as $row)
-                {
-                    $validator = Validator::make($row, RaoRfPub::rules());
+                    $validator = Validator::make($s, Source::rules());
                     if ($validator->fails())
                     {
                         $message = $validator->errors()->first();
-                        LoggerController::logToFile($message, 'info', $row, true);
+                        LoggerController::logToFile($message, 'info', $s, true);
                     }
                     else
                     {
-                        try
+                        Source::saveOrUpdate($s);
+                    }
+                }
+            }
+            else
+            {
+                die($request->reestr . " - донор не найден");
+            }
+        }
+        else
+        {
+            die("Неправелные параметры запроса");
+        }
+    }
+
+    public function rao_rf_pub(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rao_rf_pub_new';
+        $donor = new Rao_rf_pub_new();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $find->update(['parseit' => 1, 'available' => 0]);
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
+                {
+                    foreach ($rows as $row)
+                    {
+                        $validator = Validator::make($row, RaoRfPub::rules());
+                        if ($validator->fails())
                         {
-                            if ($model = RaoRfPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if ($model = RaoRfPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                                {
+                                    $model->update($row);
+                                }
+                                else
+                                {
+                                    RaoRfPub::create($row);
+                                }
+                            }
+                            catch (\Exception $e)
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
+    }
+
+    public function rss_rf_pub(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rss_rf_pub';
+        $donor = new Rss_rf_pub();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
+            {
+                $find->update(['parseit' => 1, 'available' => 0]);
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
+                {
+                    foreach ($rows as $row)
+                    {
+                        $validator = Validator::make($row, RssRfPub::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            if ($model = RssRfPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
                             {
                                 $model->update($row);
                             }
                             else
                             {
-                                RaoRfPub::create($row);
+                                RssRfPub::create($row);
                             }
                         }
-                        catch (\Exception $e)
-                        {
-
-                        }
                     }
                 }
-//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
             }
         }
-        while( $nextPage === $currPage );
-    }
-
-    public function rss_rf_pub(Request $request)
-    {
-        set_time_limit(0);
-        $donorClassName = 'Rss_rf_pub';
-        $donor = new Rss_rf_pub();
-        $opt['cookieFile'] = $donor->cookieFile;
-        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $currPage = 0;
-        do
-        {
-            $nextPage = $currPage + 1;
-            $opt['post'] = [
-                'ajax' => 'main',
-                'action' => 'search',
-                'input_2_begin' => date('d.m.Y', time()-(31*24*60*60)),
-//                'input_2_begin' => '01.01.2017',
-                'input_2_end' => date('d.m.Y'),
-                'ajaxId' => '8372942386',
-                'page_noid_' => $currPage,
-                'pageGoid_' => $nextPage,
-                'sortid_' => 'DESC',
-                'page_byid_' => 50
-            ];
-            $opt['referer'] = $donor->source;
-            $opt['origin'] = 'http://188.254.71.82';
-            $opt['host'] = '188.254.71.82';
-            $content = $donor->loadUrl($donor->source, $opt);
-            $content = preg_replace( "%windows-1251%is", 'UTF-8', $content );
-            $content = iconv('windows-1251', 'UTF-8', $content);
-            if ( preg_match('%checkedVal\((\d+)\)\;%uis', $content, $match) )
-            {
-                $countPage = $match[1];
-                if ( $countPage-1 > $currPage )
-                {
-                    $currPage++;
-                }
-            }
-            if ( $rows = $donor->getData($content, $donor->source, $opt) )
-            {
-                foreach ($rows as $row)
-                {
-                    $validator = Validator::make($row, RssRfPub::rules());
-                    if ($validator->fails())
-                    {
-                        $message = $validator->errors()->first();
-                        LoggerController::logToFile($message, 'info', $row, true);
-                    }
-                    else
-                    {
-                        if ($model = RssRfPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
-                        {
-                            $model->update($row);
-                        }
-                        else
-                        {
-                            RssRfPub::create($row);
-                        }
-                    }
-                }
-            }
-        }
-        while( $nextPage === $currPage );
+        while( true );
     }
 
     public function rss_ts_pub(Request $request)
     {
-        set_time_limit(0);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
         $donorClassName = 'Rss_ts_pub';
         $donor = new Rss_ts_pub();
-        $opt['cookieFile'] = $donor->cookieFile;
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $currPage = 0;
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            $nextPage = $currPage + 1;
-            $opt['post'] = [
-                'ajax' => 'main',
-                'action' => 'search',
-                'input_2_begin' => date('d.m.Y', time()-(31*24*60*60)),
-//                'input_2_begin' => '01.01.2017',
-                'input_2_end' => date('d.m.Y'),
-                'ajaxId' => '4841306584',
-                'page_noid_' => $currPage,
-                'pageGoid_' => $nextPage,
-                'sortid_' => 'DESC',
-                'page_byid_' => 50
-            ];
-            $content = $donor->loadUrl($donor->source, $opt);
-            $content = preg_replace( "%windows-1251%is", 'UTF-8', $content );
-            $content = iconv('windows-1251', 'UTF-8', $content);
-            if ( preg_match('%checkedVal\((\d+)\)\;%uis', $content, $match) )
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
-                $countPage = $match[1];
-                if ( $countPage-1 > $currPage )
+                $find->update(['parseit' => 1, 'available' => 0]);
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
                 {
-                    $currPage++;
-                }
-            }
-            if ( $rows = $donor->getData($content, $donor->source, $opt) )
-            {
-                foreach ($rows as $row)
-                {
-                    $validator = Validator::make($row, RssTsPub::rules());
-                    if ($validator->fails())
+                    foreach ($rows as $row)
                     {
-                        $message = $validator->errors()->first();
-                        LoggerController::logToFile($message, 'info', $row, true);
-                    }
-                    else
-                    {
-                        $row['cert_doc_issued-testing_lab-0-reg_number'] = RssTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
-                        if ($model = RssTsPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                        $validator = Validator::make($row, RssTsPub::rules());
+                        if ($validator->fails())
                         {
-                            $model->update($row);
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
                         }
                         else
                         {
-                            RssTsPub::create($row);
+                            // print_r($row);
+                            if(empty(trim($row['cert_doc_issued-testing_lab-0-reg_number'])))
+                            {
+                                $row['cert_doc_issued-testing_lab-0-reg_number'] = RssTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            }
+                            // print_r($row);
+                            if ($model = RssTsPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RssTsPub::create($row);
+                            }
                         }
                     }
                 }
             }
-//            break;
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
         }
-        while( $nextPage === $currPage );
+        while( true );
     }
 
     public function rss_pub_gost_r(Request $request)
     {
-        set_time_limit(0);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
         $donorClassName = 'Rss_pub_gost_r';
         $donor = new Rss_pub_gost_r();
-        $opt['cookieFile'] = $donor->cookieFile;
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $currPage = 0;
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            $nextPage = $currPage + 1;
-            $opt['post'] = [
-                'ajax' => 'main',
-                'action' => 'search',
-                'input_2_begin' => date('d.m.Y', time()-(31*24*60*60)),
-//                'input_2_begin' => '01.01.2017',
-                'input_2_end' => date('d.m.Y'),
-                'ajaxId' => '6719478738',
-                'page_noid_' => $currPage,
-                'pageGoid_' => $nextPage,
-                'sortid_' => 'DESC',
-                'page_byid_' => 50
-            ];
-            $content = $donor->loadUrl($donor->source, $opt);
-            $content = preg_replace( "%windows-1251%is", 'UTF-8', $content );
-            $content = iconv('windows-1251', 'UTF-8', $content);
-            if ( preg_match('%checkedVal\((\d+)\)\;%uis', $content, $match) )
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
-                $countPage = $match[1];
-                if ( $countPage-1 > $currPage )
+                $find->update(['parseit' => 1, 'available' => 0]);
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
                 {
-                    $currPage++;
-                }
-            }
-            if ( $rows = $donor->getData($content, $donor->source, $opt) )
-            {
-                foreach ($rows as $row)
-                {
-                    $validator = Validator::make($row, RssPubGostR::rules());
-                    if ($validator->fails())
+                    foreach ($rows as $row)
                     {
-                        $message = $validator->errors()->first();
-                        LoggerController::logToFile($message, 'info', $row, true);
-                    }
-                    else
-                    {
-                        if ($model = RssPubGostR::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                        $validator = Validator::make($row, RssPubGostR::rules());
+                        if ($validator->fails())
                         {
-                            $model->update($row);
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
                         }
                         else
                         {
-                            RssPubGostR::create($row);
+                            if ($model = RssPubGostR::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RssPubGostR::create($row);
+                            }
                         }
                     }
                 }
             }
-//            break;
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
         }
-        while( $nextPage === $currPage );
+        while( true );
+    }
+
+    public function rss_rf_ts_gost_pub(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rss_rf_ts_gost_pub';
+        $donor = new Rss_rf_ts_gost_pub();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
+                {
+                    foreach ($rows as $row)
+                    {
+                        $validator = Validator::make($row, RssTsPub::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            // print_r($row);
+                            if(empty(trim($row['cert_doc_issued-testing_lab-0-reg_number'])))
+                            {
+                                $row['cert_doc_issued-testing_lab-0-reg_number'] = RssTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            }
+                            // print_r($row);
+                            if ($model = RssTsPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RssTsPub::create($row);
+                            }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time - 20)
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
     }
 
     public function rds_rf_pub(Request $request)
     {
-        set_time_limit(0);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
         $donorClassName = 'Rds_rf_pub';
         $donor = new Rds_rf_pub();
-        $opt['cookieFile'] = $donor->cookieFile;
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $currPage = 0;
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            $nextPage = $currPage + 1;
-            $opt['post'] = [
-                'ajax' => 'main',
-                'action' => 'search',
-                'input_2_begin' => date('d.m.Y', time()-(31*24*60*60)),
-//                'input_2_begin' => '01.01.2017',
-                'input_2_end' => date('d.m.Y'),
-                'ajaxId' => '6719478738',
-                'page_noid_' => $currPage,
-                'pageGoid_' => $nextPage,
-                'sortid_' => 'DESC',
-                'page_byid_' => 50
-            ];
-            $content = $donor->loadUrl($donor->source, $opt);
-            $content = preg_replace( "%windows-1251%is", 'UTF-8', $content );
-            $content = iconv('windows-1251', 'UTF-8', $content);
-            if ( preg_match('%checkedVal\((\d+)\)\;%uis', $content, $match) )
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
-                $countPage = $match[1];
-                if ( $countPage-1 > $currPage )
+                $find->update(['parseit' => 1, 'available' => 0]);
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
                 {
-                    $currPage++;
-                }
-            }
-            if ( $rows = $donor->getData($content, $donor->source, $opt) )
-            {
-                foreach ($rows as $row)
-                {
-                    $validator = Validator::make($row, RdsRfPub::rules());
-                    if ($validator->fails())
+                    foreach ($rows as $row)
                     {
-                        $message = $validator->errors()->first();
-                        LoggerController::logToFile($message, 'info', $row, true);
-                    }
-                    else
-                    {
-                        if ($model = RdsRfPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                        $validator = Validator::make($row, RdsRfPub::rules());
+                        if ($validator->fails())
                         {
-                            $model->update($row);
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
                         }
                         else
                         {
-                            RdsRfPub::create($row);
+                            if ($model = RdsRfPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RdsRfPub::create($row);
+                            }
                         }
                     }
                 }
             }
-//            break;
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
         }
-        while( $nextPage === $currPage );
+        while( true );
     }
 
     public function rds_ts_pub(Request $request)
     {
-        set_time_limit(0);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
         $donorClassName = 'Rds_ts_pub';
         $donor = new Rds_ts_pub();
-        $opt['cookieFile'] = $donor->cookieFile;
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $currPage = 0;
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            $nextPage = $currPage + 1;
-            $opt['post'] = [
-                'ajax' => 'main',
-                'action' => 'search',
-                'input_2_begin' => date('d.m.Y', time()-(31*24*60*60)),
-//                'input_2_begin' => '01.01.2017',
-                'input_2_end' => date('d.m.Y'),
-                'ajaxId' => '3004715364',
-                'page_noid_' => $currPage,
-                'pageGoid_' => $nextPage,
-                'sortid_' => 'DESC',
-                'page_byid_' => 50
-            ];
-            $content = $donor->loadUrl($donor->source, $opt);
-            $content = preg_replace( "%windows-1251%is", 'UTF-8', $content );
-            $content = iconv('windows-1251', 'UTF-8', $content);
-            if ( preg_match('%checkedVal\((\d+)\)\;%uis', $content, $match) )
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
-                $countPage = $match[1];
-                if ( $countPage-1 > $currPage )
+                $find->update(['parseit' => 1, 'available' => 0]);
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
                 {
-                    $currPage++;
-                }
-            }
-            if ( $rows = $donor->getData($content, $donor->source, $opt) )
-            {
-                foreach ($rows as $row)
-                {
-                    $validator = Validator::make($row, RdsTsPub::rules());
-                    if ($validator->fails())
+                    foreach ($rows as $row)
                     {
-                        $message = $validator->errors()->first();
-                        LoggerController::logToFile($message, 'info', $row, true);
-                    }
-                    else
-                    {
-                        $row['cert_doc_issued-testing_lab-0-reg_number'] = RdsTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
-                        if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                        $validator = Validator::make($row, RdsTsPub::rules());
+                        if ($validator->fails())
                         {
-                            $model->update($row);
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
                         }
                         else
                         {
-                            RdsTsPub::create($row);
+                            $row['cert_doc_issued-testing_lab-0-reg_number'] = RdsTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RdsTsPub::create($row);
+                            }
                         }
                     }
                 }
             }
-//            break;
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
         }
-        while( $nextPage === $currPage );
+        while( true );
+    }
+
+    public function rds_ts_pub_new(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rds_ts_pub_new';
+        $donor = new Rds_ts_pub_new();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
+                {
+                    foreach ($rows as $row)
+                    {
+                        $validator = Validator::make($row, RdsTsPub::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            // $row['cert_doc_issued-testing_lab-0-reg_number'] = RdsTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RdsTsPub::create($row);
+                            }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
     }
 
     public function rds_pub_gost_r(Request $request)
     {
-        set_time_limit(0);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
         $donorClassName = 'Rds_pub_gost_r';
         $donor = new Rds_pub_gost_r();
-        $opt['cookieFile'] = $donor->cookieFile;
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $currPage = 0;
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            $nextPage = $currPage + 1;
-            $opt['post'] = [
-                'ajax' => 'main',
-                'action' => 'search',
-                'input_2_begin' => date('d.m.Y', time()-(31*24*60*60)),
-//                'input_2_begin' => '01.01.2017',
-                'input_2_end' => date('d.m.Y'),
-                'ajaxId' => '3004715364',
-                'page_noid_' => $currPage,
-                'pageGoid_' => $nextPage,
-                'sortid_' => 'DESC',
-                'page_byid_' => 50
-            ];
-            $content = $donor->loadUrl($donor->source, $opt);
-            $content = preg_replace( "%windows-1251%is", 'UTF-8', $content );
-            $content = iconv('windows-1251', 'UTF-8', $content);
-            if ( preg_match('%checkedVal\((\d+)\)\;%uis', $content, $match) )
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
-                $countPage = $match[1];
-                if ( $countPage-1 > $currPage )
+                $find->update(['parseit' => 1, 'available' => 0]);
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
                 {
-                    $currPage++;
-                }
-            }
-            if ( $rows = $donor->getData($content, $donor->source, $opt) )
-            {
-                foreach ($rows as $row)
-                {
-                    $validator = Validator::make($row, RdsPubGostR::rules());
-                    if ($validator->fails())
+                    foreach ($rows as $row)
                     {
-                        $message = $validator->errors()->first();
-                        LoggerController::logToFile($message, 'info', $row, true);
-                    }
-                    else
-                    {
-                        if ($model = RdsPubGostR::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                        $validator = Validator::make($row, RdsPubGostR::rules());
+                        if ($validator->fails())
                         {
-                            $model->update($row);
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
                         }
                         else
                         {
-                            RdsPubGostR::create($row);
+                            if ($model = RdsPubGostR::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RdsPubGostR::create($row);
+                            }
                         }
                     }
                 }
             }
-//            break;
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
         }
-        while( $nextPage === $currPage );
+        while( true );
     }
 
     public function get_cert_num_ss_ts(Request $request)
@@ -591,7 +717,7 @@ class ParseitController extends Controller
 
     public function parseitOffOn(Request $request)
     {
-        set_time_limit(0);
+        @set_time_limit(0);
         $this->validate($request, [
             'hash' => 'required',
         ]);

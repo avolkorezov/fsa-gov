@@ -96,6 +96,8 @@ class CreateRssTsPubTable extends Migration
             $table->text('a_date_begin')->nullable()->comment('Реквизиты сертификата. Дата начала действия');
             $table->text('a_date_finish')->nullable()->comment('Реквизиты сертификата. Дата окончания действия');
             $table->text('a_is_date_finish')->nullable()->comment('Реквизиты сертификата. Без срока действия');
+
+            $table->text('conformityDocType')->nullable()->comment('Основные сведения. Тип сертификата');
             
             $table->timestamps();
         });

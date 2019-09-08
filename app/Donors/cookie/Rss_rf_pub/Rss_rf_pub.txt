@@ -5,4 +5,4 @@
 public.fsa.gov.ru	FALSE	/	FALSE	0	sessionfsa_rss_v10	ed039bc1da5d37a2f76b65be37e76bfd
 188.254.71.82	FALSE	/	FALSE	0	PHPSESSID	bfj2rcvgri254n4gkbqrpn3de6
 188.254.71.82	FALSE	/	FALSE	0	sessionfsa_rss_v10	ed039bc1da5d37a2f76b65be37e76bfd
-188.254.71.82	FALSE	/	FALSE	0	session_public	7cc0935d2beefb40ff281f95ab2c6e44
+188.254.71.82	FALSE	/	FALSE	0	session_public	d78d5d58e224b6ee62bf0a4f021d1418
