@@ -4,4 +4,6 @@
 
 public.fsa.gov.ru	FALSE	/	FALSE	0	sessionfsa_rss_v10	ed039bc1da5d37a2f76b65be37e76bfd
 188.254.71.82	FALSE	/	FALSE	0	PHPSESSID	0rimt948gn55p1erni87bdbsb2
-188.254.71.82	FALSE	/	FALSE	0	session_public	7cc0935d2beefb40ff281f95ab2c6e44
+188.254.71.82	FALSE	/fsa_cabinet_v2.0/	FALSE	1539865530	urlRefer	http%3A%2F%2F188.254.71.82%2Frss_pub_gost_r%2F%3Fshow
+188.254.71.82	FALSE	/fsa_cabinet_v2.0/	FALSE	1539865530	referSysId	1
+188.254.71.82	FALSE	/	FALSE	0	session_public	40e0a587c3f275de65bf43386ac01825

@@ -47,9 +47,11 @@ Route::get('/parseit/sources', 'ParseitController@getSources');
 Route::get('/parseit/rao_rf_pub', 'ParseitController@rao_rf_pub');
 Route::get('/parseit/rss_rf_pub', 'ParseitController@rss_rf_pub');
 Route::get('/parseit/rss_ts_pub', 'ParseitController@rss_ts_pub');
+Route::get('/parseit/rss_rf_ts_gost_pub', 'ParseitController@rss_rf_ts_gost_pub');
 Route::get('/parseit/rss_pub_gost_r', 'ParseitController@rss_pub_gost_r');
 Route::get('/parseit/rds_rf_pub', 'ParseitController@rds_rf_pub');
 Route::get('/parseit/rds_ts_pub', 'ParseitController@rds_ts_pub');
+Route::get('/parseit/rds_ts_pub_new', 'ParseitController@rds_ts_pub_new');
 Route::get('/parseit/rds_pub_gost_r', 'ParseitController@rds_pub_gost_r');
 
 Route::get('/log-to-mail/off', function(){

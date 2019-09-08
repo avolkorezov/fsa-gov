@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Donors\Rao_rf_pub;
+use App\Donors\Rao_rf_pub_new;
 use App\Donors\Rds_pub_gost_r;
 use App\Donors\Rds_rf_pub;
 use App\Donors\Rds_ts_pub;
+use App\Donors\Rds_ts_pub_new;
 use App\Donors\Rss_pub_gost_r;
 use App\Donors\Rss_rf_pub;
+use App\Donors\Rss_rf_ts_gost_pub;
 use App\Donors\Rss_ts_pub;
 use App\Models\Datum;
 use App\Models\RaoRfPub;
@@ -107,7 +109,6 @@ class ParseitController extends Controller
 
     public function getSources(Request $request)
     {
-        set_time_limit(0);
         if (isset($request->reestr) && !empty($request->reestr))
         {
             if ( $source = Source::where('donor_class_name', 'like', $request->reestr)->first() )
@@ -133,6 +134,14 @@ class ParseitController extends Controller
                     }
                 }
             }
+            else
+            {
+                die($request->reestr . " - донор не найден");
+            }
+        }
+        else
+        {
+            die("Неправелные параметры запроса");
         }
     }
 
@@ -140,15 +149,20 @@ class ParseitController extends Controller
     {
         $exec_time = env('RUN_TIME', 0);
         $start = time();
-        set_time_limit($exec_time);
-        $donorClassName = 'Rao_rf_pub';
-        $donor = new Rao_rf_pub();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rao_rf_pub_new';
+        $donor = new Rao_rf_pub_new();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
         $opt['cookieFile'] = $donor->cookieFile;
-        isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            if ($find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first())
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
             {
                 $find->update(['parseit' => 1, 'available' => 0]);
                 $opt['param'] = unserialize($find->param);
@@ -199,15 +213,20 @@ class ParseitController extends Controller
     {
         $exec_time = env('RUN_TIME', 0);
         $start = time();
-        set_time_limit($exec_time);
+        @set_time_limit($exec_time);
         $donorClassName = 'Rss_rf_pub';
         $donor = new Rss_rf_pub();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
         $opt['cookieFile'] = $donor->cookieFile;
-        isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            if ($find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first())
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
                 $find->update(['parseit' => 1, 'available' => 0]);
                 $opt['param'] = unserialize($find->param);
@@ -251,15 +270,20 @@ class ParseitController extends Controller
     {
         $exec_time = env('RUN_TIME', 0);
         $start = time();
-        set_time_limit($exec_time);
+        @set_time_limit($exec_time);
         $donorClassName = 'Rss_ts_pub';
         $donor = new Rss_ts_pub();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
         $opt['cookieFile'] = $donor->cookieFile;
-        isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            if ($find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first())
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
                 $find->update(['parseit' => 1, 'available' => 0]);
                 $opt['param'] = unserialize($find->param);
@@ -275,7 +299,12 @@ class ParseitController extends Controller
                         }
                         else
                         {
-                            $row['cert_doc_issued-testing_lab-0-reg_number'] = RssTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            // print_r($row);
+                            if(empty(trim($row['cert_doc_issued-testing_lab-0-reg_number'])))
+                            {
+                                $row['cert_doc_issued-testing_lab-0-reg_number'] = RssTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            }
+                            // print_r($row);
                             if ($model = RssTsPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
                             {
                                 $model->update($row);
@@ -304,15 +333,20 @@ class ParseitController extends Controller
     {
         $exec_time = env('RUN_TIME', 0);
         $start = time();
-        set_time_limit($exec_time);
+        @set_time_limit($exec_time);
         $donorClassName = 'Rss_pub_gost_r';
         $donor = new Rss_pub_gost_r();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
         $opt['cookieFile'] = $donor->cookieFile;
-        isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            if ($find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first())
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
                 $find->update(['parseit' => 1, 'available' => 0]);
                 $opt['param'] = unserialize($find->param);
@@ -352,19 +386,88 @@ class ParseitController extends Controller
         while( true );
     }
 
+    public function rss_rf_ts_gost_pub(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rss_rf_ts_gost_pub';
+        $donor = new Rss_rf_ts_gost_pub();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
+                {
+                    foreach ($rows as $row)
+                    {
+                        $validator = Validator::make($row, RssTsPub::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            // print_r($row);
+                            if(empty(trim($row['cert_doc_issued-testing_lab-0-reg_number'])))
+                            {
+                                $row['cert_doc_issued-testing_lab-0-reg_number'] = RssTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            }
+                            // print_r($row);
+                            if ($model = RssTsPub::where(['CERT_NUM' => $row['CERT_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RssTsPub::create($row);
+                            }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time - 20)
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
+    }
+
     public function rds_rf_pub(Request $request)
     {
         $exec_time = env('RUN_TIME', 0);
         $start = time();
-        set_time_limit($exec_time);
+        @set_time_limit($exec_time);
         $donorClassName = 'Rds_rf_pub';
         $donor = new Rds_rf_pub();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
         $opt['cookieFile'] = $donor->cookieFile;
-        isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            if ($find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first())
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
                 $find->update(['parseit' => 1, 'available' => 0]);
                 $opt['param'] = unserialize($find->param);
@@ -408,15 +511,20 @@ class ParseitController extends Controller
     {
         $exec_time = env('RUN_TIME', 0);
         $start = time();
-        set_time_limit($exec_time);
+        @set_time_limit($exec_time);
         $donorClassName = 'Rds_ts_pub';
         $donor = new Rds_ts_pub();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
         $opt['cookieFile'] = $donor->cookieFile;
-        isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            if ($find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first())
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
                 $find->update(['parseit' => 1, 'available' => 0]);
                 $opt['param'] = unserialize($find->param);
@@ -457,19 +565,83 @@ class ParseitController extends Controller
         while( true );
     }
 
+    public function rds_ts_pub_new(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rds_ts_pub_new';
+        $donor = new Rds_ts_pub_new();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+                if ($rows = $donor->getData($find->source, $opt))
+                {
+                    foreach ($rows as $row)
+                    {
+                        $validator = Validator::make($row, RdsTsPub::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            // $row['cert_doc_issued-testing_lab-0-reg_number'] = RdsTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+                            if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+                            }
+                            else
+                            {
+                                RdsTsPub::create($row);
+                            }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - $exec_time)
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
+    }
+
     public function rds_pub_gost_r(Request $request)
     {
         $exec_time = env('RUN_TIME', 0);
         $start = time();
-        set_time_limit($exec_time);
+        @set_time_limit($exec_time);
         $donorClassName = 'Rds_pub_gost_r';
         $donor = new Rds_pub_gost_r();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
         $opt['cookieFile'] = $donor->cookieFile;
-        isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
         do
         {
-            if ($find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first())
+        	$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+        	if ( !$find ) 
+        	{
+        		$find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+        	}
+            if ($find)
             {
                 $find->update(['parseit' => 1, 'available' => 0]);
                 $opt['param'] = unserialize($find->param);
@@ -545,7 +717,7 @@ class ParseitController extends Controller
 
     public function parseitOffOn(Request $request)
     {
-        set_time_limit(0);
+        @set_time_limit(0);
         $this->validate($request, [
             'hash' => 'required',
         ]);

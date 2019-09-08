@@ -81,6 +81,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $a_date_begin Реквизиты декларации. Дата начала действия
  * @property string $a_date_finish Реквизиты декларации. Дата окончания действия
  * @property string $a_is_date_finish Реквизиты декларации. Без срока действия
+ * @property string $conformityDocType Основные сведения. Тип декларации
+ * @property string $techregProductList Основные сведения. Группа продукции
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\RdsTsPub whereAApplicantInfoRdsAppLegalPersonAddress($value)
@@ -240,7 +242,9 @@ class RdsTsPub extends Model
         'a_blank_number',
         'a_date_begin',
         'a_date_finish',
-        'a_is_date_finish'
+        'a_is_date_finish',
+        'conformityDocType',
+        'techregProductList'
     ];
 
     protected $guarded = [];

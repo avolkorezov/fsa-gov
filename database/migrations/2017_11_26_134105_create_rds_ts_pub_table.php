@@ -96,11 +96,15 @@ class CreateRdsTsPubTable extends Migration
             $table->text('rds-table_standart_confirmation_requirements')->nullable()->comment('Сведения о приложениях к сертификату. Подтверждение требованиям национального стандарта или свода правил');
             $table->text('a_free_form')->nullable()->comment('Сведения о приложениях к сертификату. Прочие сведения о сертификате соответствия');
 
-            $table->text('a_reg_number')->nullable()->comment('Реквизиты декларации. Регистрационный номер');
+            $table->text('a_reg_number')->nullable()->comment('Заявитель. Сведения о государственной регистрации');
             $table->text('a_blank_number')->nullable()->comment('Реквизиты декларации. Номер бланка');
             $table->text('a_date_begin')->nullable()->comment('Реквизиты декларации. Дата начала действия');
             $table->text('a_date_finish')->nullable()->comment('Реквизиты декларации. Дата окончания действия');
             $table->text('a_is_date_finish')->nullable()->comment('Реквизиты декларации. Без срока действия');
+
+            $table->text('conformityDocType')->nullable()->comment('Основные сведения. Тип декларации');
+            $table->text('techregProductList')->nullable()->comment('Основные сведения. Группа продукции');
+
             $table->timestamps();
         });
     }

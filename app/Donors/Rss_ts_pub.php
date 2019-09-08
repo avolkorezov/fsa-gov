@@ -58,6 +58,7 @@ Class Rss_ts_pub extends simpleParser {
                     $currPage++;
                 }
             }
+            print_r($content);die();
             $content = ParseItHelpers::fixEncoding($content);
             $content = ParseItHelpers::fixHeader($content);
             $nokogiri = new nokogiri($content);
@@ -294,6 +295,7 @@ Class Rss_ts_pub extends simpleParser {
             'a_date_finish' => trim(@$a_date_finish[0]['__ref']->nodeValue),
             'a_is_date_finish' => empty($a_is_date_finish) ? 0 : 1,
         ];
+        // print_r($data);
 
         return $data;
     }

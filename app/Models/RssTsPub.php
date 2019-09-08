@@ -73,6 +73,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $a_date_begin Реквизиты сертификата. Дата начала действия
  * @property string $a_date_finish Реквизиты сертификата. Дата окончания действия
  * @property string $a_is_date_finish Реквизиты сертификата. Без срока действия
+ * @property string $conformityDocType Основные сведения. Тип сертификата
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @method static \Illuminate\Database\Query\Builder|\App\Models\RssTsPub whereAApplicantInfoRssAppLegalPersonAddress($value)
@@ -209,6 +210,7 @@ class RssTsPub extends Model
         'a_date_begin',
         'a_date_finish',
         'a_is_date_finish',
+        'conformityDocType'
     ];
 
     protected $guarded = [];

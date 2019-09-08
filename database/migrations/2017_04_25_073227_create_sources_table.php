@@ -28,11 +28,18 @@ class CreateSourcesTable extends Migration
             $table->text('param')->nullable();
             $table->timestamps();
         });
+//        \App\Models\Source::create([
+//            'donor_class_name' => 'Rao_rf_pub',
+//            'name' => 'Реестр аккредитованных лиц, включая Национальную часть Единого реестра органов по сертификации и испытательных лабораторий Таможенного союза',
+//            'hash' => md5('http://public.fsa.gov.ru/table_rao_pub_rf/index.php'),
+//            'source' => 'http://public.fsa.gov.ru/table_rao_pub_rf/index.php',
+//            'version' => '1',
+//        ]);
         \App\Models\Source::create([
-            'donor_class_name' => 'Rao_rf_pub',
-            'name' => 'Реестр аккредитованных лиц, включая Национальную часть Единого реестра органов по сертификации и испытательных лабораторий Таможенного союза',
-            'hash' => md5('http://public.fsa.gov.ru/table_rao_pub_rf/index.php'),
-            'source' => 'http://public.fsa.gov.ru/table_rao_pub_rf/index.php',
+            'donor_class_name' => 'Rao_rf_pub_new',
+            'name' => 'Реестр аккредитованных лиц',
+            'hash' => md5('https://pub.fsa.gov.ru/api/v1/ral/common/showcases/get'),
+            'source' => 'https://pub.fsa.gov.ru/api/v1/ral/common/showcases/get',
             'version' => '1',
         ]);
         \App\Models\Source::create([
@@ -63,11 +70,25 @@ class CreateSourcesTable extends Migration
             'source' => 'http://public.fsa.gov.ru/table_rds_pub_rf/',
             'version' => '1',
         ]);
+//        \App\Models\Source::create([
+//            'donor_class_name' => 'Rds_ts_pub',
+//            'name' => 'Национальная часть единого реестра зарегистрированных деклараций о соответствии, оформленных по единой форме',
+//            'hash' => md5('http://public.fsa.gov.ru/table_rds_pub_ts/'),
+//            'source' => 'http://public.fsa.gov.ru/table_rds_pub_ts/',
+//            'version' => '1',
+//        ]);
         \App\Models\Source::create([
-            'donor_class_name' => 'Rds_ts_pub',
+            'donor_class_name' => 'Rds_ts_pub_new',
             'name' => 'Национальная часть единого реестра зарегистрированных деклараций о соответствии, оформленных по единой форме',
-            'hash' => md5('http://public.fsa.gov.ru/table_rds_pub_ts/'),
-            'source' => 'http://public.fsa.gov.ru/table_rds_pub_ts/',
+            'hash' => md5('https://pub.fsa.gov.ru/api/v1/rds/common/declarations/get'),
+            'source' => 'https://pub.fsa.gov.ru/api/v1/rds/common/declarations/get',
+            'version' => '1',
+        ]);
+        \App\Models\Source::create([
+            'donor_class_name' => 'Rss_rf_ts_gost_pub',
+            'name' => 'Сертификаты соответствия',
+            'hash' => md5('https://pub.fsa.gov.ru/api/v1/rss/common/certificates/get'),
+            'source' => 'https://pub.fsa.gov.ru/api/v1/rss/common/certificates/get',
             'version' => '1',
         ]);
         \App\Models\Source::create([
