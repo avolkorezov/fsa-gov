@@ -86,7 +86,10 @@ Class Rds_ts_pub_new extends simpleParser {
         $sources = [];
         $regDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['begin']) ? date('Y-m-d',strtotime(@$opt['begin'])) : date('Y-m-d', time()-(31*24*60*60));
         $endDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['end']) ? date('Y-m-d',strtotime(@$opt['end'])) : null;
-//        print_r([$regDate, $endDate]);die();
+        $type = '';
+        if (isset($opt['type'])) {
+            $type = $opt['type'];
+        }
         $opt['refer'] = 'https://pub.fsa.gov.ru/rds/declaration';
         $opt['origin'] = 'https://pub.fsa.gov.ru';
         $opt['host'] = 'pub.fsa.gov.ru';
@@ -105,7 +108,7 @@ Class Rds_ts_pub_new extends simpleParser {
         do
         {
             $nextPage = $currPage + 1;
-            $opt['post'] = "{\"size\":{$perPage},\"page\":{$currPage},\"filter\":{\"status\":[],\"idDeclType\":[],\"idCertObjectType\":[],\"idProductType\":[],\"idGroupRU\":[],\"idGroupEEU\":[],\"idTechReg\":[],\"idApplicantType\":[],\"regDate\":{\"minDate\":\"{$regDate}\",\"maxDate\":\"{$endDate}\"},\"endDate\":{\"minDate\":null,\"maxDate\":null},\"columnsSearch\":[],\"idProductEEU\":[],\"idProductRU\":[],\"idDeclScheme\":[],\"awaitForApprove\":null,\"editApp\":null,\"violationSendDate\":null},\"columnsSort\":[{\"column\":\"declDate\",\"sort\":\"DESC\"}]}";
+            $opt['post'] = "{\"size\":{$perPage},\"page\":{$currPage},\"filter\":{\"status\":[],\"idDeclType\":[{$type}],\"idCertObjectType\":[],\"idProductType\":[],\"idGroupRU\":[],\"idGroupEEU\":[],\"idTechReg\":[],\"idApplicantType\":[],\"regDate\":{\"minDate\":\"{$regDate}\",\"maxDate\":\"{$endDate}\"},\"endDate\":{\"minDate\":null,\"maxDate\":null},\"columnsSearch\":[],\"idProductEEU\":[],\"idProductRU\":[],\"idDeclScheme\":[],\"awaitForApprove\":null,\"editApp\":null,\"violationSendDate\":null},\"columnsSort\":[{\"column\":\"declDate\",\"sort\":\"DESC\"}]}";
 //            $opt['post'] = "{\"size\":100,\"page\":0,\"filter\":{\"status\":[],\"idDeclType\":[],\"idCertObjectType\":[],\"idProductType\":[],\"idGroupRU\":[],\"idGroupEEU\":[],\"idTechReg\":[],\"idApplicantType\":[],\"regDate\":{\"minDate\":\"2000-10-20\",\"maxDate\":null},\"endDate\":{\"minDate\":null,\"maxDate\":\"2018-10-28\"},\"columnsSearch\":[],\"idProductEEU\":[],\"idProductRU\":[],\"idDeclScheme\":[],\"awaitForApprove\":null,\"editApp\":null,\"violationSendDate\":null},\"columnsSort\":[{\"column\":\"declDate\",\"sort\":\"DESC\"}]}";
             $api_decl = $this->loadUrl('https://pub.fsa.gov.ru/api/v1/rds/common/declarations/get', $opt);
 //            print_r($api_decl);die();
