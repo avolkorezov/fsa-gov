@@ -109,6 +109,9 @@ class ParseitController extends Controller
 
     public function getSources(Request $request)
     {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
         if (isset($request->reestr) && !empty($request->reestr))
         {
             if ( $source = Source::where('donor_class_name', 'like', $request->reestr)->first() )
@@ -410,6 +413,7 @@ class ParseitController extends Controller
                 {
                     foreach ($rows as $row)
                     {
+//                        print_r($row);
                         $validator = Validator::make($row, RssTsPub::rules());
                         if ($validator->fails())
                         {
@@ -442,7 +446,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - $exec_time - 20)
+            if ($start < time() - $exec_time)
             {
                 die('End exec time');
             }
@@ -589,6 +593,7 @@ class ParseitController extends Controller
                 {
                     foreach ($rows as $row)
                     {
+//                        print_r($row);
                         $validator = Validator::make($row, RdsTsPub::rules());
                         if ($validator->fails())
                         {

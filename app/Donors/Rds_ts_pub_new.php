@@ -84,7 +84,8 @@ Class Rds_ts_pub_new extends simpleParser {
     public function getSources($opt = [])
     {
         $sources = [];
-        $regDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['begin']) ? date('Y-m-d',strtotime(@$opt['begin'])) : date('Y-m-d', time()-(31*24*60*60));
+//        $regDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['begin']) ? date('Y-m-d',strtotime(@$opt['begin'])) : date('Y-m-d', time()-(31*24*60*60));
+        $regDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['begin']) ? date('Y-m-d',strtotime(@$opt['begin'])) : null;
         $endDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['end']) ? date('Y-m-d',strtotime(@$opt['end'])) : null;
         $type = '';
         if (isset($opt['type'])) {

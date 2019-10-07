@@ -83,7 +83,8 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
     public function getSources($opt = [])
     {
         $sources = [];
-        $regDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['begin']) ? date('Y-m-d',strtotime(@$opt['begin'])).'T00:00:00.000Z' : date('Y-m-d', time()-(31*24*60*60)).'T00:00:00.000Z';
+//        $regDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['begin']) ? date('Y-m-d',strtotime(@$opt['begin'])).'T00:00:00.000Z' : date('Y-m-d', time()-(31*24*60*60)).'T00:00:00.000Z';
+        $regDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['begin']) ? date('Y-m-d',strtotime(@$opt['begin'])).'T00:00:00.000Z' : null;
         $endDate = preg_match("%\d{1,2}\.\d{1,2}\.\d{4}%uis", @$opt['end']) ? date('Y-m-d',strtotime(@$opt['end'])).'T00:00:00.000Z' : null;
         $type = '';
         if (isset($opt['type'])) {
@@ -109,7 +110,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
         {
             $nextPage = $currPage + 1;
 //            print_r($regDate);die();
-            $opt['post'] = "{\"size\":{$perPage},\"page\":{$currPage},\"filter\":{\"regDate\":{\"minDate\":\"{$regDate}\",\"maxDate\":\"{$endDate}\"},\"endDate\":{\"minDate\":\"\",\"maxDate\":\"\"},\"columnsSearch\":[]},\"columnsSort\":[{\"column\":\"date\",\"sort\":\"DESC\"}]{$type}}";
+            $opt['post'] = "{\"size\":{$perPage},\"page\":{$currPage},\"filter\":{\"regDate\":{\"minDate\":\"{$regDate}\",\"maxDate\":\"{$endDate}\"},\"endDate\":{\"minDate\":\"\",\"maxDate\":\"\"},\"columnsSearch\":[]{$type}},\"columnsSort\":[{\"column\":\"date\",\"sort\":\"DESC\"}]}";
             $api_decl = $this->loadUrl($this->source, $opt);
 //            print_r($api_decl);die();
             if ( isset($api_decl->total) )
