@@ -183,7 +183,7 @@ Class Rds_ts_pub_new extends simpleParser {
     public function getData($url, $source = [])
     {
         $data = false;
-//        $url = preg_replace('%\d+$%uis', 11656121, $url);
+//        $url = preg_replace('%\d+$%uis', 13357331, $url);
 //        print_r($url);die();
         $source['refer'] = 'https://pub.fsa.gov.ru/rds/declaration';
 //        $source['refer'] = preg_replace('%\d+$%uis', 13547646, $source['refer']);
@@ -198,9 +198,9 @@ Class Rds_ts_pub_new extends simpleParser {
             'orgId: ',
         ];
 //        print_r($url);die();
+        sleep(1);
         $api_common = $this->loadUrl($url, $source);
 //        print_r($api_common);die();
-
         $addressType = [];
         if (isset($api_common->applicant->addresses))
         {
@@ -324,10 +324,11 @@ Class Rds_ts_pub_new extends simpleParser {
         $source['json'] = true;
         $source['post'] = "{\"sort\":\"id\",\"attrs\":[],\"columns\":[{\"names\":[\"name\"],\"search\":\"Российская\"}],\"offset\":0,\"limit\":50}";
         unset($source['cookieFile']);
-
+        sleep(1);
         $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $source);
 
         $source['post'] = '{"items":{'.implode(',', $items).'}}';
+        sleep(1);
         $api_multi = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/multi', $source);
 //        print_r($api_multi);die();
 

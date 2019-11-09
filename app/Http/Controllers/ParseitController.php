@@ -623,13 +623,13 @@ class ParseitController extends Controller
                             \print_r($row);
                             if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
                             {
-                                die('update');
                                 $model->update($row);
+                                die('update');
                             }
                             else
                             {
-                                die('create');
                                 RdsTsPub::create($row);
+                                die('create');
                             }
                         }
                     }
