@@ -620,16 +620,16 @@ class ParseitController extends Controller
                         else
                         {
                             // $row['cert_doc_issued-testing_lab-0-reg_number'] = RdsTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
-                            \print_r($row);
+//                            \print_r($row);
                             if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
                             {
                                 $model->update($row);
-                                die('update');
+//                                die('update');
                             }
                             else
                             {
                                 RdsTsPub::create($row);
-                                die('create');
+//                                die('create');
                             }
                         }
                     }
