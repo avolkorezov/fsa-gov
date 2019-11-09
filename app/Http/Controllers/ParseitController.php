@@ -595,7 +595,7 @@ class ParseitController extends Controller
                 }
                 catch (\Exception $exception)
                 {
-                    throw new \Exception($exception);
+                    print_r($exception->getMessage());die();
                 }
                 if (!empty($rows))
                 {
