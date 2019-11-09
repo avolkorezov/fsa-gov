@@ -589,6 +589,7 @@ class ParseitController extends Controller
             if ($find)
             {
                 $opt['param'] = unserialize($find->param);
+
                 try
                 {
                     \sleep(1);
@@ -596,8 +597,15 @@ class ParseitController extends Controller
                 }
                 catch (\Exception $exception)
                 {
-                    print_r($exception->getMessage());die();
+                    if ($exception->getMessage() == '503 Service Temporarily Unavailable' )
+                    {
+                        LoggerController::logToFile("503 Service Temporarily Unavailable - {$find->source} ", 'info', [], false);
+                        sleep(5);
+                        continue;
+                    }
+                    throw new \Exception($exception);
                 }
+
                 if (!empty($rows))
                 {
                     foreach ($rows as $row)
