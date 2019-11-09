@@ -591,6 +591,7 @@ class ParseitController extends Controller
                 $opt['param'] = unserialize($find->param);
                 try
                 {
+                    \sleep(1);
                     $rows = $donor->getData($find->source, $opt);
                 }
                 catch (\Exception $exception)
