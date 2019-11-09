@@ -157,8 +157,8 @@ Class simpleParser
         if (empty(@$opt['no-follow'])) {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
-        //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-        //curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+//        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
         //curl_setopt($ch, CURLOPT_AUTOREFERER, true);
 
@@ -224,13 +224,14 @@ Class simpleParser
 
         $data = curl_exec($ch);
         $status = curl_getinfo($ch);
+        $error = curl_error($ch);
         curl_close($ch);
 
         if (@$opt['json']) {
             $data = json_decode($data);
         }
 
-        $response = [ 'data' => $data, 'status' => $status ];
+        $response = [ 'data' => $data, 'status' => $status, 'error' => $error ];
 //        print_r($url);
 //        print_r($opt);
 //        print_r($status);

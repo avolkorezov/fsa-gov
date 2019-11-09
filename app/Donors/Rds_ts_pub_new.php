@@ -24,6 +24,7 @@ Class Rds_ts_pub_new extends simpleParser {
     public $donor = 'Rds_ts_pub_new';
     protected $token = '';
     protected $session = '';
+    protected $sessionNode = '';
     private $decl_status = [
         6 => 'Действует',
         14 => 'Прекращен',
@@ -48,12 +49,12 @@ Class Rds_ts_pub_new extends simpleParser {
         $opt['origin'] = 'https://pub.fsa.gov.ru';
         $opt['host'] = 'pub.fsa.gov.ru';
         $opt['ajax'] = true;
-//        $opt['cookieFile'] = $this->cookieFile;
         $opt['headers'] = [
             'Content-Type: application/json',
             'Authorization: Bearer null',
         ];
         $content = $this->loadUrl('https://pub.fsa.gov.ru/login', $opt);
+
         if (preg_match('%Authorization\: Bearer ([^\n]+)\n%uis', $content['data'], $match))
         {
             $token = trim($match[1]);
@@ -62,9 +63,14 @@ Class Rds_ts_pub_new extends simpleParser {
             ];
             unset($opt['post']);
             $content = $this->loadUrl("https://pub.fsa.gov.ru/lk/api/account", $opt);
-            $content = $this->loadUrl("https://pub.fsa.gov.ru/token/is/actual/{$token}", $opt);
+            if (preg_match('%Set-Cookie\:.*?JSESSIONID\=([^\;]+)\;%uis', $content['data'], $match))
+            {
+                $session = trim($match[1]);
+                $this->setSessionNode($session);
+            }
+
             $content = $this->loadUrl("https://pub.fsa.gov.ru/api/v1/rds/common/account", $opt);
-            if (preg_match('%Set-Cookie\: ([^\n]+)\n%uis', $content['data'], $match))
+            if (preg_match('%Set-Cookie\:.*?JSESSIONID\=([^\;]+)\;%uis', $content['data'], $match))
             {
                 $session = trim($match[1]);
                 $opt['headers'] = [
@@ -78,6 +84,24 @@ Class Rds_ts_pub_new extends simpleParser {
                 $this->setSession($session);
                 $this->setToken($token);
             }
+
+            $opt['headers'] = [
+                "Authorization: Bearer {$token}",
+                "Cookie: JSESSIONID={$this->getSessionNode()}",
+                'Content-Type: application/json'
+            ];
+
+            $opt['post'] = "{\"sort\":\"id\",\"attrs\":[],\"offset\":null,\"limit\":350}";
+            $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $opt);
+
+            $opt['post'] = "{\"sort\":\"id\",\"attrs\":[],\"columns\":[{\"names\":[\"name\"],\"search\":\"Российская\"}],\"offset\":0,\"limit\":50}";
+            $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $opt);
+
+            unset($opt['post']);
+
+            $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/api/v1/rds/common/identifiers', $opt);
+
+            $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/lk/api/account/card', $opt);
         }
     }
 
@@ -159,20 +183,24 @@ Class Rds_ts_pub_new extends simpleParser {
     public function getData($url, $source = [])
     {
         $data = false;
-//        $url = preg_replace('%\d+$%uis', 12972662, $url);
+//        $url = preg_replace('%\d+$%uis', 11656121, $url);
+//        print_r($url);die();
         $source['refer'] = 'https://pub.fsa.gov.ru/rds/declaration';
+//        $source['refer'] = preg_replace('%\d+$%uis', 13547646, $source['refer']);
         $source['origin'] = 'https://pub.fsa.gov.ru';
         $source['host'] = 'pub.fsa.gov.ru';
         $source['ajax'] = true;
         $source['json'] = true;
-//        $source['returnHeader'] = true;
         $source['headers'] = [
             "Authorization: Bearer {$this->getToken()}",
             "Cookie: JSESSIONID={$this->getSession()}",
-            'Content-Type: application/json'
+            'lkId: ',
+            'orgId: ',
         ];
+//        print_r($url);die();
         $api_common = $this->loadUrl($url, $source);
 //        print_r($api_common);die();
+
         $addressType = [];
         if (isset($api_common->applicant->addresses))
         {
@@ -283,11 +311,26 @@ Class Rds_ts_pub_new extends simpleParser {
         isset($okpd2) && !empty($okpd2) ? $items[] = "\"okpd2\":[{\"id\":[".implode(',', $okpd2)."],\"fields\":[\"id\",\"masterId\",\"name\",\"code\"]}]" : '';
 //        print_r($api_common);die();
 //        print_r($items);die();
+
+        $source['headers'] = [
+            "Authorization: Bearer {$this->getToken()}",
+            "Cookie: JSESSIONID={$this->getSessionNode()}",
+            'lkId: ',
+            'orgId: ',
+            'Content-Type: application/json',
+        ];
+
+//        $source['returnHeader'] = true;
+        $source['json'] = true;
+        $source['post'] = "{\"sort\":\"id\",\"attrs\":[],\"columns\":[{\"names\":[\"name\"],\"search\":\"Российская\"}],\"offset\":0,\"limit\":50}";
+        unset($source['cookieFile']);
+
+        $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $source);
+
         $source['post'] = '{"items":{'.implode(',', $items).'}}';
         $api_multi = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/multi', $source);
 //        print_r($api_multi);die();
-        $source['post'] = '{"sort":"id","attrs":[],"columns":[{"names":["name"],"search":"Российская"}],"offset":0,"limit":50}';
-        $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $source);
+
         foreach ( $api_oksm->items as $item )
         {
             if ($api_common->product->idProductOrigin === $item->id)
@@ -591,5 +634,15 @@ Class Rds_ts_pub_new extends simpleParser {
     private function setSession($session)
     {
         $this->session = $session;
+    }
+
+    public function getSessionNode()
+    {
+        return $this->sessionNode;
+    }
+
+    private function setSessionNode($session)
+    {
+        $this->sessionNode = $session;
     }
 }
