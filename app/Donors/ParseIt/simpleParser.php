@@ -243,16 +243,25 @@ Class simpleParser
                 }
             }
         }
-        if ( !isset($opt['attempts']) )
+        if(@$status['http_code'] == 503)
+        {
+            throw new \Exception('503 Service Temporarily Unavailable');
+        }
+
+        if (!isset($opt['attempts']))
         {
             $opt['attempts'] = 3;
         }
-        if ( @$opt['attempts'] > 0 ) {
-            if(!$data) {
-                print_r($response);die();
-                if( $popitka === 10 ) {
+        if ( @$opt['attempts'] > 0 )
+        {
+            if(!$data)
+            {
+                if( $popitka == $opt['attempts'] )
+                {
                     return $response;
-                } else {
+                }
+                else
+                {
                     if ( isset($opt['proxy']) )
                     {
                         $proxy = ProxyList::getNextProxy();

@@ -589,7 +589,15 @@ class ParseitController extends Controller
             if ($find)
             {
                 $opt['param'] = unserialize($find->param);
-                if ($rows = $donor->getData($find->source, $opt))
+                try
+                {
+                    $rows = $donor->getData($find->source, $opt);
+                }
+                catch (\Exception $exception)
+                {
+                    print_r($exception);die();
+                }
+                if (!empty($rows))
                 {
                     foreach ($rows as $row)
                     {
