@@ -249,6 +249,7 @@ Class simpleParser
         }
         if ( @$opt['attempts'] > 0 ) {
             if(!$data) {
+                print_r($response);die();
                 if( $popitka === 10 ) {
                     return $response;
                 } else {
