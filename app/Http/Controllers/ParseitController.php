@@ -392,7 +392,6 @@ class ParseitController extends Controller
     public function rss_rf_ts_gost_pub(Request $request)
     {
         $exec_time = env('RUN_TIME', 0);
-        die($exec_time);
         $start = time();
         @set_time_limit($exec_time);
         $donorClassName = 'Rss_rf_ts_gost_pub';
@@ -462,7 +461,87 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - $exec_time)
+            if ($start < time() - ($exec_time - 10))
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
+    }
+
+    public function rds_ts_pub_new(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'Rds_ts_pub_new';
+        $donor = new Rds_ts_pub_new();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+
+                try
+                {
+                    \sleep(1);
+                    $rows = $donor->getData($find->source, $opt);
+                }
+                catch (\Exception $exception)
+                {
+                    if ($exception->getMessage() == '503 Service Temporarily Unavailable' )
+                    {
+                        LoggerController::logToFile("503 Service Temporarily Unavailable - {$find->source} ", 'info', [], false);
+                        sleep(5);
+                        continue;
+                    }
+                    throw new \Exception($exception);
+                }
+
+                if (!empty($rows))
+                {
+                    foreach ($rows as $row)
+                    {
+//                        print_r($row);
+                        $validator = Validator::make($row, RdsTsPub::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            // $row['cert_doc_issued-testing_lab-0-reg_number'] = RdsTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
+//                            \print_r($row);
+                            if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
+                            {
+                                $model->update($row);
+//                                die('update');
+                            }
+                            else
+                            {
+                                RdsTsPub::create($row);
+//                                die('create');
+                            }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - ($exec_time - 10))
             {
                 die('End exec time');
             }
@@ -572,86 +651,6 @@ class ParseitController extends Controller
                         }
                     }
                 }
-            }
-            else
-            {
-                die('Done');
-            }
-            if ($start < time() - $exec_time)
-            {
-                die('End exec time');
-            }
-        }
-        while( true );
-    }
-
-    public function rds_ts_pub_new(Request $request)
-    {
-        $exec_time = env('RUN_TIME', 0);
-        $start = time();
-        @set_time_limit($exec_time);
-        $donorClassName = 'Rds_ts_pub_new';
-        $donor = new Rds_ts_pub_new();
-        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
-        $opt['cookieFile'] = $donor->cookieFile;
-        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
-        do
-        {
-            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
-            if ( !$find )
-            {
-                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
-            }
-            if ($find)
-            {
-                $opt['param'] = unserialize($find->param);
-
-                try
-                {
-                    \sleep(1);
-                    $rows = $donor->getData($find->source, $opt);
-                }
-                catch (\Exception $exception)
-                {
-                    if ($exception->getMessage() == '503 Service Temporarily Unavailable' )
-                    {
-                        LoggerController::logToFile("503 Service Temporarily Unavailable - {$find->source} ", 'info', [], false);
-                        sleep(5);
-                        continue;
-                    }
-                    throw new \Exception($exception);
-                }
-
-                if (!empty($rows))
-                {
-                    foreach ($rows as $row)
-                    {
-//                        print_r($row);
-                        $validator = Validator::make($row, RdsTsPub::rules());
-                        if ($validator->fails())
-                        {
-                            $message = $validator->errors()->first();
-                            LoggerController::logToFile($message, 'info', $row, true);
-                        }
-                        else
-                        {
-                            // $row['cert_doc_issued-testing_lab-0-reg_number'] = RdsTsPub::parse_cert_doc_issued_reg_number($row['cert_doc_issued-testing_lab-0-basis_for_certificate']);
-//                            \print_r($row);
-                            if ($model = RdsTsPub::where(['DECL_NUM' => $row['DECL_NUM']])->get()->first())
-                            {
-                                $model->update($row);
-//                                die('update');
-                            }
-                            else
-                            {
-                                RdsTsPub::create($row);
-//                                die('create');
-                            }
-                        }
-                    }
-                }
-                $find->update(['parseit' => 1, 'available' => 0]);
-//                break;
             }
             else
             {
