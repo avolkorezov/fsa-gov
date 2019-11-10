@@ -53,6 +53,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
             'Authorization: Bearer null',
         ];
         $content = $this->loadUrl('https://pub.fsa.gov.ru/login', $opt);
+        sleep(1);
         if (preg_match('%Authorization\: Bearer ([^\n]+)\n%uis', $content['data'], $match))
         {
             $token = trim($match[1]);
@@ -61,19 +62,14 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
             ];
             unset($opt['post']);
             $content = $this->loadUrl("https://pub.fsa.gov.ru/lk/api/account", $opt);
+            sleep(1);
             $content = $this->loadUrl("https://pub.fsa.gov.ru/token/is/actual/{$token}", $opt);
+            sleep(1);
             $content = $this->loadUrl("https://pub.fsa.gov.ru/api/v1/rss/common/account", $opt);
+            sleep(1);
             if (preg_match('%Set-Cookie\: ([^\n]+)\n%uis', $content['data'], $match))
             {
                 $session = trim($match[1]);
-                $opt['headers'] = [
-                    "Authorization: Bearer {$token}",
-                    "Cookie: JSESSIONID={$session}",
-                    'Content-Type: application/json'
-                ];
-                $opt['post'] = '{"sort":"id","attrs":[],"columns":[{"names":["name"],"search":"Российская"}],"offset":0,"limit":50}';
-//                $content = $this->loadUrl("https://pub.fsa.gov.ru/nsi/api/oksm/get", $opt);
-//                print_r($content);die();
                 $this->setSession($session);
                 $this->setToken($token);
             }
@@ -112,6 +108,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
 //            print_r($regDate);die();
             $opt['post'] = "{\"size\":{$perPage},\"page\":{$currPage},\"filter\":{\"regDate\":{\"minDate\":\"{$regDate}\",\"maxDate\":\"{$endDate}\"},\"endDate\":{\"minDate\":\"\",\"maxDate\":\"\"},\"columnsSearch\":[]{$type}},\"columnsSort\":[{\"column\":\"date\",\"sort\":\"DESC\"}]}";
             $api_decl = $this->loadUrl($this->source, $opt);
+            sleep(5);
 //            print_r($api_decl);die();
             if ( isset($api_decl->total) )
             {
@@ -173,6 +170,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
             'Content-Type: application/json'
         ];
         $api_common = $this->loadUrl($url, $source);
+        sleep(1);
 //        print_r($api_common);die();
 
         $addressType = [];
@@ -285,9 +283,11 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
 //        print_r($api_multi);die();
         $source['post'] = '{"items":{'.implode(',', $items).'}}';
         $api_multi = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/multi', $source);
+        sleep(1);
 //        print_r($api_multi);die();
         $source['post'] = '{"sort":"id","attrs":[],"columns":[{"names":["name"],"search":"Российская"}],"offset":0,"limit":50}';
         $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $source);
+        sleep(1);
         if (isset($api_oksm->items))
         {
             foreach ( $api_oksm->items as $item )
@@ -502,7 +502,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
 
             'conformityDocType' => isset($conformityDocType) ? $conformityDocType : '',
         ];
-//        print_r($data); die();
+        print_r($data); die();
 
         return $data;
     }

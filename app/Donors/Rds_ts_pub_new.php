@@ -54,6 +54,7 @@ Class Rds_ts_pub_new extends simpleParser {
             'Authorization: Bearer null',
         ];
         $content = $this->loadUrl('https://pub.fsa.gov.ru/login', $opt);
+        sleep(1);
 
         if (preg_match('%Authorization\: Bearer ([^\n]+)\n%uis', $content['data'], $match))
         {
@@ -63,6 +64,7 @@ Class Rds_ts_pub_new extends simpleParser {
             ];
             unset($opt['post']);
             $content = $this->loadUrl("https://pub.fsa.gov.ru/lk/api/account", $opt);
+            sleep(1);
             if (preg_match('%Set-Cookie\:.*?JSESSIONID\=([^\;]+)\;%uis', $content['data'], $match))
             {
                 $session = trim($match[1]);
@@ -70,17 +72,10 @@ Class Rds_ts_pub_new extends simpleParser {
             }
 
             $content = $this->loadUrl("https://pub.fsa.gov.ru/api/v1/rds/common/account", $opt);
+            sleep(1);
             if (preg_match('%Set-Cookie\:.*?JSESSIONID\=([^\;]+)\;%uis', $content['data'], $match))
             {
                 $session = trim($match[1]);
-                $opt['headers'] = [
-                    "Authorization: Bearer {$token}",
-                    "Cookie: JSESSIONID={$session}",
-                    'Content-Type: application/json'
-                ];
-                $opt['post'] = '{"sort":"id","attrs":[],"columns":[{"names":["name"],"search":"Российская"}],"offset":0,"limit":50}';
-//                $content = $this->loadUrl("https://pub.fsa.gov.ru/nsi/api/oksm/get", $opt);
-//                print_r($content);die();
                 $this->setSession($session);
                 $this->setToken($token);
             }
@@ -93,15 +88,19 @@ Class Rds_ts_pub_new extends simpleParser {
 
             $opt['post'] = "{\"sort\":\"id\",\"attrs\":[],\"offset\":null,\"limit\":350}";
             $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $opt);
+            sleep(1);
 
             $opt['post'] = "{\"sort\":\"id\",\"attrs\":[],\"columns\":[{\"names\":[\"name\"],\"search\":\"Российская\"}],\"offset\":0,\"limit\":50}";
             $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/nsi/api/oksm/get', $opt);
+            sleep(1);
 
             unset($opt['post']);
 
             $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/api/v1/rds/common/identifiers', $opt);
+            sleep(1);
 
             $api_oksm = $this->loadUrl('https://pub.fsa.gov.ru/lk/api/account/card', $opt);
+            sleep(1);
         }
     }
 
@@ -199,8 +198,8 @@ Class Rds_ts_pub_new extends simpleParser {
             'orgId: ',
         ];
 //        print_r($url);die();
-        sleep(1);
         $api_common = $this->loadUrl($url, $source);
+        sleep(1);
 //        print_r($api_common);die();
         $addressType = [];
         if (isset($api_common->applicant->addresses))
