@@ -502,7 +502,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
 
             'conformityDocType' => isset($conformityDocType) ? $conformityDocType : '',
         ];
-        print_r($data); die();
+//        print_r($data); die();
 
         return $data;
     }
