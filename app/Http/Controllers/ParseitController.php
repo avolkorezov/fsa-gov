@@ -392,6 +392,7 @@ class ParseitController extends Controller
     public function rss_rf_ts_gost_pub(Request $request)
     {
         $exec_time = env('RUN_TIME', 0);
+        die($exec_time);
         $start = time();
         @set_time_limit($exec_time);
         $donorClassName = 'Rss_rf_ts_gost_pub';
