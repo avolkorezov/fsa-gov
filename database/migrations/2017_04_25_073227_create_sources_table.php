@@ -98,6 +98,13 @@ class CreateSourcesTable extends Migration
             'source' => 'http://public.fsa.gov.ru/table_rds_pub_gost_r/',
             'version' => '1',
         ]);
+        \App\Models\Source::create([
+            'donor_class_name' => 'ArmnabAm_Cert',
+            'name' => 'Национальный орган по аккредитации Армении',
+            'hash' => md5('http://armnab.am/CertificationBodyListRU'),
+            'source' => 'http://armnab.am/CertificationBodyListRU',
+            'version' => '1',
+        ]);
     }
 
     /**

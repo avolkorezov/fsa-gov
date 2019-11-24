@@ -117,10 +117,10 @@ Class simpleParser
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
 
         $defaultHeaders = [
-            'Accept-Language:ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
-            'Accept-Charset: utf-8, Windows-1251, ANSI, ISO-8859-1;q=0.7,*;q=0.7',
-            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Encoding: gzip;q=0, compress;q=0',
+//            'Accept-Language:ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
+//            'Accept-Charset: utf-8, Windows-1251, ANSI, ISO-8859-1;q=0.7,*;q=0.7',
+//            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+//            'Accept-Encoding: gzip;q=0, compress;q=0',
         ];
 //        $opt['headers'][] =  'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:16.0) Gecko/20100101 Firefox/16.0';
         $headersConfig = array_merge($defaultHeaders, (array) @$opt['headers']);
@@ -130,7 +130,7 @@ Class simpleParser
         }
         else
         {
-            $headersConfig[] = 'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:16.0) Gecko/20100101 Firefox/16.0';
+            $headersConfig[] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36';
         }
 
         if (@$opt['ajax']) {

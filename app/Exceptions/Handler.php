@@ -2,10 +2,13 @@
 
 namespace App\Exceptions;
 
+use App\Http\Middleware\VerifyCsrfToken;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Log;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -33,24 +36,29 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        $e = $exception;
-        $message = '['.$e->getCode().'] "'.$e->getMessage().'" on line '.$e->getLine().' of file '.$e->getFile();
-        Log::error($message);
-
-        if ( @config('parser.log_to_mail') )
+        if(!($exception instanceof NotFoundHttpException) && !( $exception instanceof MethodNotAllowedHttpException ) && !( $exception instanceof AuthenticationException ) && !( $exception instanceof VerifyCsrfToken ) && !( $exception instanceof ValidatesRequests))
         {
-            try
+            $e = $exception;
+            $message = '['.$e->getCode().'] "'.$e->getMessage().'" on line '.$e->getLine().' of file '.$e->getFile();
+            Log::error($message);
+            if ( env('APP_LOGTOEMAIL', false) )
             {
-                \Mail::send('emails.alert', array('text' => $message, 'context' => ''), function($message)
+                $server_url = env('SERVER_URL');
+                $context = [
+                    'Сервер' => $server_url,
+                ];
+                try
                 {
-                    $to = explode(',', config('parser.admin_emails'));
-                    $message->to($to);
-                    $message->subject('Системные ошибки');
-                });
-            }
-            catch (\Exception $e)
-            {
-
+                    \Mail::send('emails.alert', array('text' => $message, 'context' => $context), function($message)
+                    {
+                        $message->to(env('MAIL_FROM_ADDRESS', 'pasha.klyuchnikov@gmail.com'), 'Handler@report');
+                        $message->subject('Системные ошибки');
+                    });
+                }
+                catch (\Exception $e)
+                {
+//                    throw new \Exception($e);
+                }
             }
         }
     }
