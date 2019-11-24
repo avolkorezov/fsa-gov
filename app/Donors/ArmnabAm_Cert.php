@@ -79,7 +79,9 @@ Class ArmnabAm_Cert extends simpleParser {
                 'source' => $href,
                 'donor_class_name' => $this->donor,
                 'version' => 2,
-                'param' => $item
+                'param' => [
+                    'AP_NUMBER' => $item->AP_NUMBER,
+                ]
             ];
         }
 
@@ -91,7 +93,48 @@ Class ArmnabAm_Cert extends simpleParser {
     {
         $data = false;
 
-        $item = $source['param'];
+        $number = $source['param']['AP_NUMBER'];
+
+        $source['cookieFile'] = $this->cookieFile;
+
+        $source['headers'] = [
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+//            'Accept-Encoding: gzip, deflate',
+            'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
+//            'Content-Type: application/json; charset=UTF-8',
+        ];
+        $source['host'] = 'armnab.am';
+
+        $content = $this->loadUrl($this->source, $source);
+
+//        $opt['returnHeader'] = 1;
+
+        $source['post'] = "{'Number':'{$number}'}";
+        $source['ajax'] = true;
+        $source['json'] = true;
+        $source['origin'] = 'http://armnab.am';
+        $source['referer'] = 'http://armnab.am/CertificationBodyListRU';
+        $source['headers'] = [
+            'Accept: application/json, text/javascript; q=0.01',
+            'Accept-Encoding: gzip, deflate',
+            'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
+            'Content-Type: application/json; charset=UTF-8',
+            'X-Requested-With: XMLHttpRequest'
+        ];
+
+        $content = $this->loadUrl('http://armnab.am/CertificationBodyRUService.asmx/GetObjects', $source);
+
+        if (!isset($content->d))
+        {
+            return [];
+        }
+
+        $items = json_decode($content->d);
+        if (!isset($items[0]))
+        {
+            return [];
+        }
+        $item = $items[0];
 
         $data[] = [
             'AP_NUMBER' => $item->AP_NUMBER,
