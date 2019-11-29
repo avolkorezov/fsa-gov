@@ -17,6 +17,7 @@ return [
             'Rds_ts_pub' => \App\Donors\Rds_ts_pub::class,
             'Rds_pub_gost_r' => \App\Donors\Rds_pub_gost_r::class,
             'ArmnabAm_Cert' => \App\Donors\ArmnabAm_Cert::class,
+            'ArmnabAm_CertList' => \App\Donors\ArmnabAm_CertList::class,
         ]
     ],
 

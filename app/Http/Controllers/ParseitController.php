@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Donors\ArmnabAm_Cert;
+use App\Donors\ArmnabAm_CertList;
 use App\Donors\Rao_rf_pub_new;
 use App\Donors\Rds_pub_gost_r;
 use App\Donors\Rds_rf_pub;
@@ -14,6 +15,7 @@ use App\Donors\Rss_rf_ts_gost_pub;
 use App\Donors\Rss_ts_pub;
 use App\Models\ArmnabAmCert;
 use App\Models\Datum;
+use App\Models\MMCert01RU;
 use App\Models\RaoRfPub;
 use App\Models\RdsPubGostR;
 use App\Models\RdsRfPub;
@@ -21,6 +23,7 @@ use App\Models\RdsTsPub;
 use App\Models\RssPubGostR;
 use App\Models\RssRfPub;
 use App\Models\RssTsPub;
+use App\Models\RTRTS01001;
 use App\Models\Source;
 use App\ParseIt;
 use Illuminate\Http\Request;
@@ -613,6 +616,118 @@ class ParseitController extends Controller
                                 ArmnabAmCert::create($row);
 //                                die('create');
                             }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - ($exec_time - 10))
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
+    }
+
+    public function armnabAm_certList(Request $request)
+    {
+        error_reporting(E_ALL);
+        ini_set('display_errors', 1);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'ArmnabAm_CertList';
+        $donor = new ArmnabAm_CertList();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+
+                $type = $donor->getDocTypeByLink($find->source);
+
+                switch ($type)
+                {
+                    case 'MMCert01RU':
+                        $find->update(['parseit' => 1, 'available' => 0]);
+                        $rows = $donor->getDataMMCert01RU($find->source, $opt);
+                        break;
+
+                    case 'R_TR_TS_01_001':
+                        $rows = $donor->getDataR_TR_TS_01_001($find->source, $opt);
+                        break;
+
+                    default :
+//                        print_r('gag');die();
+                        break;
+                }
+
+                if (!empty($rows))
+                {
+                    foreach ($rows as $row)
+                    {
+                        switch ($type)
+                        {
+                            case 'MMCert01RU':
+
+                                $validator = Validator::make($row, MMCert01RU::rules());
+                                if ($validator->fails())
+                                {
+                                    $message = $validator->errors()->first();
+                                    LoggerController::logToFile($message, 'info', $row, true);
+                                }
+                                else
+                                {
+                                    if ($model = MMCert01RU::where(['REG_NUMBER' => $row['REG_NUMBER']])->get()->first())
+                                    {
+                                        $model->update($row);
+                                    }
+                                    else
+                                    {
+                                        MMCert01RU::create($row);
+                                    }
+                                }
+
+                                break;
+
+                            case 'R_TR_TS_01_001':
+
+                                $validator = Validator::make($row, RTRTS01001::rules());
+                                if ($validator->fails())
+                                {
+                                    $message = $validator->errors()->first();
+                                    LoggerController::logToFile($message, 'info', $row, true);
+                                }
+                                else
+                                {
+                                    if ($model = RTRTS01001::where(['REG_NUMBER' => $row['REG_NUMBER']])->get()->first())
+                                    {
+                                        $model->update($row);
+                                    }
+                                    else
+                                    {
+                                        RTRTS01001::create($row);
+                                    }
+                                }
+
+                                break;
+
+                            default :
+//                                print_r('gag');die();
+                                break;
                         }
                     }
                 }
