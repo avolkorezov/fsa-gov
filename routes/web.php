@@ -54,6 +54,7 @@ Route::get('/parseit/rds_ts_pub', 'ParseitController@rds_ts_pub');
 Route::get('/parseit/rds_ts_pub_new', 'ParseitController@rds_ts_pub_new');
 Route::get('/parseit/armnabAm_cert', 'ParseitController@armnabAm_cert');
 Route::get('/parseit/armnabAm_certList', 'ParseitController@armnabAm_certList');
+Route::get('/parseit/armnabAm_laboratoryList', 'ParseitController@armnabAm_LaboratoryList');
 Route::get('/parseit/rds_pub_gost_r', 'ParseitController@rds_pub_gost_r');
 
 Route::get('/log-to-mail/off', function(){
@@ -165,6 +166,13 @@ Route::get('/import/sources', function(){
         'name' => 'Сертификаты соответствия',
         'hash' => md5('http://armnab.am/CertlistRU?mode=5'),
         'source' => 'http://armnab.am/CertlistRU?mode=5',
+        'version' => '1',
+    ]);
+    \App\Models\Source::firstOrCreate([
+        'donor_class_name' => 'ArmnabAm_LaboratoryList',
+        'name' => 'Испытательные лаборатории',
+        'hash' => md5('http://armnab.am/LaboratoryListRU'),
+        'source' => 'http://armnab.am/LaboratoryListRU',
         'version' => '1',
     ]);
 });

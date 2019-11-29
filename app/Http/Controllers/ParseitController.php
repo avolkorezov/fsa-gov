@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Donors\ArmnabAm_Cert;
 use App\Donors\ArmnabAm_CertList;
+use App\Donors\ArmnabAm_LaboratoryList;
 use App\Donors\Rao_rf_pub_new;
 use App\Donors\Rds_pub_gost_r;
 use App\Donors\Rds_rf_pub;
@@ -14,6 +15,7 @@ use App\Donors\Rss_rf_pub;
 use App\Donors\Rss_rf_ts_gost_pub;
 use App\Donors\Rss_ts_pub;
 use App\Models\ArmnabAmCert;
+use App\Models\ArmnabAmLaboratory;
 use App\Models\Datum;
 use App\Models\MMCert01RU;
 use App\Models\RaoRfPub;
@@ -554,6 +556,73 @@ class ParseitController extends Controller
         while( true );
     }
 
+
+    public function armnabAm_LaboratoryList(Request $request)
+    {
+        error_reporting(E_ALL);
+        ini_set('display_errors', 1);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'ArmnabAm_LaboratoryList';
+        $donor = new ArmnabAm_LaboratoryList();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+
+                $rows = $donor->getData($find->source, $opt);
+
+                if (!empty($rows))
+                {
+                    foreach ($rows as $row)
+                    {
+//                        print_r($row);
+                        $validator = Validator::make($row, ArmnabAmLaboratory::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            if ($model = ArmnabAmLaboratory::where(['AP_NUMBER' => $row['AP_NUMBER']])->get()->first())
+                            {
+                                $model->update($row);
+//                                die('update');
+                            }
+                            else
+                            {
+                                ArmnabAmLaboratory::create($row);
+//                                die('create');
+                            }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - ($exec_time - 10))
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
+    }
+
     public function armnabAm_cert(Request $request)
     {
         error_reporting(E_ALL);
@@ -738,10 +807,10 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
-            {
-                die('End exec time');
-            }
+//            if ($start < time() - ($exec_time - 10))
+//            {
+//                die('End exec time');
+//            }
         }
         while( true );
     }
