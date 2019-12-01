@@ -18,6 +18,7 @@ use App\Donors\Rss_ts_pub;
 use App\Models\ArmnabAmCert;
 use App\Models\ArmnabAmLaboratory;
 use App\Models\Datum;
+use App\Models\Decl01RU;
 use App\Models\MMCert01RU;
 use App\Models\RaoRfPub;
 use App\Models\RdsPubGostR;
@@ -651,13 +652,22 @@ class ParseitController extends Controller
 
                 switch ($type)
                 {
-                    case 'MMCert01RU':
+                    case 'Decl01RU':
                         $find->update(['parseit' => 1, 'available' => 0]);
-                        $rows = $donor->getDataMMCert01RU($find->source, $opt);
+                        $rows = $donor->getDataDecl01RU($find->source, $opt);
                         break;
 
                     case 'R_TR_TS_01_001':
-                        $rows = $donor->getDataR_TR_TS_01_001($find->source, $opt);
+                        try
+                        {
+                            $rows = $donor->getDataR_TR_TS_01_001($find->source, $opt);
+                        }
+                        catch (\Exception $exception)
+                        {
+                            $find->update(['parseit' => 1, 'available' => 0]);
+                            LoggerController::logToFile($exception->getMessage(), 'error', [], false);
+                            continue;
+                        }
                         break;
 
                     default :
@@ -665,73 +675,73 @@ class ParseitController extends Controller
                         break;
                 }
 
-//                if (!empty($rows))
-//                {
-//                    foreach ($rows as $row)
-//                    {
-//                        switch ($type)
-//                        {
-//                            case 'MMCert01RU':
-//
-//                                $validator = Validator::make($row, MMCert01RU::rules());
-//                                if ($validator->fails())
-//                                {
-//                                    $message = $validator->errors()->first();
-//                                    LoggerController::logToFile($message, 'info', $row, true);
-//                                }
-//                                else
-//                                {
-//                                    if ($model = MMCert01RU::where(['REG_NUMBER' => $row['REG_NUMBER']])->get()->first())
-//                                    {
-//                                        $model->update($row);
-//                                    }
-//                                    else
-//                                    {
-//                                        MMCert01RU::create($row);
-//                                    }
-//                                }
-//
-//                                break;
-//
-//                            case 'R_TR_TS_01_001':
-//
-//                                $validator = Validator::make($row, RTRTS01001::rules());
-//                                if ($validator->fails())
-//                                {
-//                                    $message = $validator->errors()->first();
-//                                    LoggerController::logToFile($message, 'info', $row, true);
-//                                }
-//                                else
-//                                {
-//                                    if ($model = RTRTS01001::where(['REG_NUMBER' => $row['REG_NUMBER']])->get()->first())
-//                                    {
-//                                        $model->update($row);
-//                                    }
-//                                    else
-//                                    {
-//                                        RTRTS01001::create($row);
-//                                    }
-//                                }
-//
-//                                break;
-//
-//                            default :
-////                                print_r('gag');die();
-//                                break;
-//                        }
-//                    }
-//                }
-//                $find->update(['parseit' => 1, 'available' => 0]);
-                break;
+                if (!empty($rows))
+                {
+                    foreach ($rows as $row)
+                    {
+                        switch ($type)
+                        {
+                            case 'Decl01RU':
+
+                                $validator = Validator::make($row, Decl01RU::rules());
+                                if ($validator->fails())
+                                {
+                                    $message = $validator->errors()->first();
+                                    LoggerController::logToFile($message, 'info', $row, true);
+                                }
+                                else
+                                {
+                                    if ($model = Decl01RU::where(['REG_NUMBER' => $row['REG_NUMBER']])->get()->first())
+                                    {
+                                        $model->update($row);
+                                    }
+                                    else
+                                    {
+                                        Decl01RU::create($row);
+                                    }
+                                }
+
+                                break;
+
+                            case 'R_TR_TS_01_001':
+
+                                $validator = Validator::make($row, RTRTS01001::rules());
+                                if ($validator->fails())
+                                {
+                                    $message = $validator->errors()->first();
+                                    LoggerController::logToFile($message, 'info', $row, true);
+                                }
+                                else
+                                {
+                                    if ($model = RTRTS01001::where(['REG_NUMBER' => $row['REG_NUMBER']])->get()->first())
+                                    {
+                                        $model->update($row);
+                                    }
+                                    else
+                                    {
+                                        RTRTS01001::create($row);
+                                    }
+                                }
+
+                                break;
+
+                            default :
+//                                print_r('gag');die();
+                                break;
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
             }
             else
             {
                 die('Done');
             }
-//            if ($start < time() - ($exec_time - 10))
-//            {
-//                die('End exec time');
-//            }
+            if ($start < time() - ($exec_time - 10))
+            {
+                die('End exec time');
+            }
         }
         while( true );
     }

@@ -10,18 +10,18 @@ use ParseIt\nokogiri;
 use App\Donors\ParseIt\simpleParser;
 use ParseIt\ParseItHelpers;
 
-Class ArmnabAm_CertList extends simpleParser {
+Class ArmnabAm_CertListMode10 extends simpleParser {
 
     public $data = [];
     public $reload = [];
     public $project = 'armnab.am';
     public $project_link = 'http://armnab.am/';
-    public $source = 'http://armnab.am/CertlistRU?mode=5';
+    public $source = 'http://armnab.am/CertlistRU?mode=10';
     public $cache = false;
     public $proxy = false;
     public $cookieFile = '';
     public $version_id = 1;
-    public $donor = 'ArmnabAm_CertList';
+    public $donor = 'ArmnabAm_CertListMode10';
     protected $token = '';
     protected $session = '';
 
@@ -34,11 +34,28 @@ Class ArmnabAm_CertList extends simpleParser {
     {
         $sources = [];
 
+        $opt['cookieFile'] = $this->cookieFile;
+
+        $opt['headers'] = [
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'Accept-Encoding: gzip, deflate',
+            'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
+            'Content-Type: application/x-www-form-urlencoded'
+        ];
+
+        $opt['host'] = 'armnab.am';
+        $opt['origin'] = 'http://armnab.am';
+        $opt['referer'] = 'http://armnab.am/CertlistRU?mode=10';
+
         if (isset($opt['url']))
         {
-            $opt['origin'] = 'http://armnab.am';
-            $opt['referer'] = 'http://armnab.am/CertlistRU?mode=5';
+//            $opt['returnHeader'] = 1;
+            if (isset($opt['pageEnd']) && $opt['page'] > $opt['pageEnd'])
+            {
+                return [];
+            }
             $content = $this->loadUrl($opt['url'], $opt);
+
             if (empty($content))
             {
                 return [];
@@ -46,16 +63,6 @@ Class ArmnabAm_CertList extends simpleParser {
         }
         else
         {
-            $opt['cookieFile'] = $this->cookieFile;
-
-            $opt['headers'] = [
-                'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-                'Accept-Encoding: gzip, deflate',
-                'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
-                'Content-Type: application/x-www-form-urlencoded'
-            ];
-
-            $opt['host'] = 'armnab.am';
             $opt['page'] = 1;
             $content = $this->loadUrl($this->source, $opt);
         }
@@ -83,8 +90,22 @@ Class ArmnabAm_CertList extends simpleParser {
             ];
         }
 
-        $opt['page'] = $opt['page'] + 1;
-//        $opt['page'] = 40;
+        if (isset($opt['pageBegin']) && $opt['page'] < $opt['pageBegin'])
+        {
+            if ($opt['page'] + 10 < $opt['pageBegin'])
+            {
+                $opt['page'] = $opt['page'] + 10;
+            }
+            else
+            {
+                $opt['page'] = $opt['pageBegin'];
+            }
+        }
+        else
+        {
+            $opt['page'] = $opt['page'] + 1;
+        }
+//        $opt['page'] = 2;
 
         $__VIEWSTATE = $nokogiri->get('#__VIEWSTATE')->toArray();
         $__VIEWSTATEGENERATOR = $nokogiri->get('#__VIEWSTATEGENERATOR')->toArray();
@@ -123,7 +144,7 @@ Class ArmnabAm_CertList extends simpleParser {
         return $sources;
     }
 
-    public function getDataMMCert01RU($url, $source = [])
+    public function getDataDecl01RU($url, $source = [])
     {
         $data = false;
 
@@ -141,7 +162,7 @@ Class ArmnabAm_CertList extends simpleParser {
 
         $content = $this->loadUrl($this->source, $source);
 
-        $source['post'] = "{'CertRegNumber':'{$number}', 'StatusFilter':'ALL'}";
+        $source['post'] = "{'DeclRegNumber':'{$number}', 'StatusFilter':'ALL'}";
         $source['ajax'] = true;
         $source['json'] = true;
         $source['origin'] = 'http://armnab.am';
@@ -154,7 +175,7 @@ Class ArmnabAm_CertList extends simpleParser {
             'X-Requested-With: XMLHttpRequest'
         ];
 
-        $content = $this->loadUrl('http://armnab.am/CertificateRUService.asmx/GetMMCertificates', $source);
+        $content = $this->loadUrl('http://armnab.am/DeclarationRUService.asmx/GetDeclarations', $source);
 
         if (!isset($content->d))
         {
@@ -220,6 +241,7 @@ Class ArmnabAm_CertList extends simpleParser {
             'ProductOtherDocuments' => $item->ProductOtherDocuments,
             'ProductExtraInfo' => $item->ProductExtraInfo,
             'Attachments' => $item->Attachments,
+            'SUSPEND_DATE_CAUSE' => $item->SUSPEND_DATE_CAUSE,
             'HGM_NAME' => $item->HGM_NAME,
             'AC_NUMBER' => $item->AC_NUMBER,
             'HGM_LEADER_NAME' => $item->HGM_LEADER_NAME,
@@ -243,7 +265,7 @@ Class ArmnabAm_CertList extends simpleParser {
     {
         $data = false;
 
-//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/23238";
+//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/16443";
 
         $source['cookieFile'] = $this->cookieFile;
 
@@ -542,9 +564,9 @@ Class ArmnabAm_CertList extends simpleParser {
 
     public function getDocTypeByLink($link)
     {
-        if (preg_match('%MMCert01RU%uis', $link))
+        if (preg_match('%Decl01RU%uis', $link))
         {
-            return 'MMCert01RU';
+            return 'Decl01RU';
         }
         elseif (preg_match('%R_TR_TS_01_001%uis', $link))
         {
