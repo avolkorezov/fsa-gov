@@ -304,11 +304,14 @@ Class ArmnabAm_CertList extends simpleParser {
         }
 
         $divApplicant = $nokogiri->get('#divApplicant .box-body')->toArray();
-        print_r($divApplicant);die();
         $APPLICANT_PERS_FILIALS = [];
         foreach ( $divApplicant[0]['table'][0]['tbody'][0]['tr'] as $row)
         {
-            if (!isset($row['td']) || count($row['td']) != 6)
+            if (!isset($row['td']))
+            {
+                continue;
+            }
+            if (count($row['td']) != 6)
             {
                 continue;
             }
@@ -320,7 +323,7 @@ Class ArmnabAm_CertList extends simpleParser {
                 'Номер государственной регистрации' => @$row['td'][4]['__ref']->nodeValue,
             ];
         }
-
+        print_r($divApplicant);die();
         $product_tables_tr = $nokogiri->get('#divProduct .box-body tbody tr')->toArray();
         $PRODUCT_LIST = [];
         foreach ($product_tables_tr as $row)
