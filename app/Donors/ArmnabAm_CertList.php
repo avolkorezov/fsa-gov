@@ -309,11 +309,11 @@ Class ArmnabAm_CertList extends simpleParser {
         {
             foreach ( $divApplicant[0]['table'][0]['tbody'][0]['tr'] as $row)
             {
-                if (!isset($row['td']))
+                if (@!isset($row['td']))
                 {
                     continue;
                 }
-                if (count($row['td']) != 6)
+                if (@count(@$row['td']) != 6)
                 {
                     continue;
                 }
@@ -326,7 +326,7 @@ Class ArmnabAm_CertList extends simpleParser {
                 ];
             }
         }
-        print_r($divApplicant);die();
+        print_r($APPLICANT_PERS_FILIALS);die();
         $product_tables_tr = $nokogiri->get('#divProduct .box-body tbody tr')->toArray();
         $PRODUCT_LIST = [];
         foreach ($product_tables_tr as $row)
