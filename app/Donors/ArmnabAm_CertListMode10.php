@@ -440,6 +440,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
             {
                 foreach ($row['td'][1]['div'][0]['table'][0]['tbody'][0]['tr'] as $tr)
                 {
+                    if (!is_array($tr))
+                    {
+                        continue;
+                    }
                     $MANUFACTURER_INFO['Адрес(а)'][] = [
                         'вид адреса' => @$tr['td'][0]['__ref']->nodeValue,
                         'Регион' => @$tr['td'][1]['__ref']->nodeValue,
