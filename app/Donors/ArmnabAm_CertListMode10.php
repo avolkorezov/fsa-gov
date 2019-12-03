@@ -265,7 +265,7 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
     {
         $data = false;
 
-//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/16443";
+//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/23656";
 
         $source['cookieFile'] = $this->cookieFile;
 
@@ -329,6 +329,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $APPLICANT_PERS_FILIALS = [];
         foreach ( $divApplicant[0]['table'][0]['tbody'][0]['tr'] as $row)
         {
+            if (!is_array($row))
+            {
+                continue;
+            }
             if (!isset($row['td']) || count($row['td']) != 6)
             {
                 continue;
@@ -346,6 +350,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $PRODUCT_LIST = [];
         foreach ($product_tables_tr as $row)
         {
+            if (!is_array($row))
+            {
+                continue;
+            }
             if (!isset($row['td']) || isset($row['id']) || count($row['td']) != 6)
             {
                 continue;
@@ -363,6 +371,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $PRODUCT_BATCH = [];
         foreach ($ProductInstanceList as $table)
         {
+            if (!is_array($table))
+            {
+                continue;
+            }
             if (!isset($table['tr']) || count($table['tr']) != 7)
             {
                 continue;
@@ -382,6 +394,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $PRODUCT_TECHLIST = [];
         foreach ($DocInformationList as $row)
         {
+            if (!is_array($row))
+            {
+                continue;
+            }
             if (!isset($row['td']) || isset($row['id']) || count($row['td']) != 3)
             {
                 continue;
@@ -396,6 +412,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $MANUFACTURER_INFO = [];
         foreach ($divManufacturer_tr as $row)
         {
+            if (!is_array($row))
+            {
+                continue;
+            }
             if (!isset($row['td']) || isset($row['id']) || count($row['td']) != 5)
             {
                 continue;
@@ -412,6 +432,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
 
         foreach ($divManufacturer_tr as $row)
         {
+            if (!is_array($row))
+            {
+                continue;
+            }
             if (isset($row['id']) && preg_match('%ManufacturerAddressList%uis', $row['id']))
             {
                 foreach ($row['td'][1]['div'][0]['table'][0]['tbody'][0]['tr'] as $tr)
@@ -435,7 +459,11 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
             $i = 0;
             foreach ($ManufacturerBranchList[0]['tr'] as $row)
             {
-                if (!isset($row['id']) && count($row['td']) == 6)
+                if (!is_array($row))
+                {
+                    continue;
+                }
+                if (!isset($row['id']) && isset($row['td']) && count($row['td']) == 6)
                 {
                     $i++;
                     $MANUFACTURER_INFO['Филиал(ы)'][$i] = [
@@ -451,11 +479,19 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
             $i = 0;
             foreach ($ManufacturerBranchList[0]['tr'] as $row)
             {
+                if (!is_array($row))
+                {
+                    continue;
+                }
                 if (isset($row['id']) && preg_match('%ManufacturerBranchAddressList%uis', $row['id']))
                 {
                     $i++;
                     foreach ($row['td'][1]['div'][0]['table'][0]['tbody'][0]['tr'] as $tr_adress)
                     {
+                        if (!is_array($tr_adress))
+                        {
+                            continue;
+                        }
                         $MANUFACTURER_INFO['Филиал(ы)'][$i]['Адрес(а) филиала'][] = [
                             'вид адреса' => @$tr_adress['td'][0]['__ref']->nodeValue,
                             'Регион' => @$tr_adress['td'][1]['__ref']->nodeValue,
@@ -473,7 +509,11 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $PRODUCT_BATCH_DOCUMENTS = [];
         foreach ($blocks[4]['div'][1]['div'][0]['table'][0]['tbody'][0]['tr'] as $row)
         {
-            if (!isset($row['id']) && count($row['td']) == 3)
+            if (!is_array($row))
+            {
+                continue;
+            }
+            if (!isset($row['id']) && isset($row['td']) && count($row['td']) == 3)
             {
                 $PRODUCT_BATCH_DOCUMENTS[] = [
                     'наименование' => trim(@$row['td'][0]['__ref']->nodeValue),
@@ -486,6 +526,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $ProductExtraInfo = [];
         foreach ($divComplianceDocDetail_tr as $row)
         {
+            if (!is_array($row))
+            {
+                continue;
+            }
             if (!isset($row['td']) || count($row['td']) != 6)
             {
                 continue;
@@ -503,7 +547,11 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $EXPERT_INFO = [];
         foreach ($blocks[6]['div'][1]['table'][0]['tbody'][0]['tr'] as $row)
         {
-            if (!isset($row['id']) && count($row['td']) == 4)
+            if (!is_array($row))
+            {
+                continue;
+            }
+            if (!isset($row['id']) && isset($row['td']) && count($row['td']) == 4)
             {
                 $EXPERT_INFO[] = [
                     'Имя' => trim(@$row['td'][0]['__ref']->nodeValue),
@@ -517,6 +565,10 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $Attachments = [];
         foreach ($divDocAnnexDetails as $row)
         {
+            if (!is_array($row))
+            {
+                continue;
+            }
             if (!isset($row['td']) || count($row['td']) != 4)
             {
                 continue;

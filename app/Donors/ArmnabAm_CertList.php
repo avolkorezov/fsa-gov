@@ -356,7 +356,7 @@ Class ArmnabAm_CertList extends simpleParser {
         $PRODUCT_BATCH = [];
         foreach ($ProductInstanceList as $table)
         {
-            if (!is_array($row))
+            if (!is_array($table))
             {
                 continue;
             }
