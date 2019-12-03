@@ -304,6 +304,7 @@ Class ArmnabAm_CertList extends simpleParser {
         }
 
         $divApplicant = $nokogiri->get('#divApplicant .box-body')->toArray();
+        print_r($divApplicant);die();
         $APPLICANT_PERS_FILIALS = [];
         foreach ( $divApplicant[0]['table'][0]['tbody'][0]['tr'] as $row)
         {
