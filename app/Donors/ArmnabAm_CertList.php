@@ -305,23 +305,26 @@ Class ArmnabAm_CertList extends simpleParser {
 
         $divApplicant = $nokogiri->get('#divApplicant .box-body')->toArray();
         $APPLICANT_PERS_FILIALS = [];
-        foreach ( $divApplicant[0]['table'][0]['tbody'][0]['tr'] as $row)
+        if (is_array($divApplicant[0]['table'][0]['tbody'][0]['tr']))
         {
-            if (!isset($row['td']))
+            foreach ( $divApplicant[0]['table'][0]['tbody'][0]['tr'] as $row)
             {
-                continue;
+                if (!isset($row['td']))
+                {
+                    continue;
+                }
+                if (count($row['td']) != 6)
+                {
+                    continue;
+                }
+                $APPLICANT_PERS_FILIALS[] = [
+                    'Страна' => trim(@$row['td'][0]['__ref']->nodeValue),
+                    'УНН' => @$row['td'][1]['__ref']->nodeValue,
+                    'Наименование хозяйствующего субъекта' => @$row['td'][2]['__ref']->nodeValue,
+                    'Наименование организационно-правовой формы' => @$row['td'][3]['__ref']->nodeValue,
+                    'Номер государственной регистрации' => @$row['td'][4]['__ref']->nodeValue,
+                ];
             }
-            if (count($row['td']) != 6)
-            {
-                continue;
-            }
-            $APPLICANT_PERS_FILIALS[] = [
-                'Страна' => trim(@$row['td'][0]['__ref']->nodeValue),
-                'УНН' => @$row['td'][1]['__ref']->nodeValue,
-                'Наименование хозяйствующего субъекта' => @$row['td'][2]['__ref']->nodeValue,
-                'Наименование организационно-правовой формы' => @$row['td'][3]['__ref']->nodeValue,
-                'Номер государственной регистрации' => @$row['td'][4]['__ref']->nodeValue,
-            ];
         }
         print_r($divApplicant);die();
         $product_tables_tr = $nokogiri->get('#divProduct .box-body tbody tr')->toArray();
