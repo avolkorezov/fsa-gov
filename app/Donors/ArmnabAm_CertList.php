@@ -309,12 +309,15 @@ Class ArmnabAm_CertList extends simpleParser {
         {
             foreach ( $divApplicant[0]['table'][0]['tbody'][0]['tr'] as $row)
             {
-                print_r($row);die();
-                if (@!isset($row['td']))
+                if (!is_array($row))
                 {
                     continue;
                 }
-                if (@count(@$row['td']) != 6)
+                if (!isset($row['td']))
+                {
+                    continue;
+                }
+                if (count(@$row['td']) != 6)
                 {
                     continue;
                 }
