@@ -243,7 +243,7 @@ Class ArmnabAm_CertList extends simpleParser {
     {
         $data = false;
 
-//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/23238";
+        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/10027";
 
         $source['cookieFile'] = $this->cookieFile;
 
@@ -535,7 +535,7 @@ Class ArmnabAm_CertList extends simpleParser {
             'EXPERT_INFO' => serialize($EXPERT_INFO),
             'Attachments' => serialize($Attachments),
         ];
-//        print_r($data);die();
+        print_r($data);die();
 
         return $data;
     }
