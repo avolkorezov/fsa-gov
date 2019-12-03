@@ -452,7 +452,7 @@ Class ArmnabAm_CertList extends simpleParser {
                 {
                     continue;
                 }
-                if (!isset($row['id']) && count($row['td']) == 6)
+                if (!isset($row['id']) && isset($row['td']) && count($row['td']) == 6)
                 {
                     $i++;
                     $MANUFACTURER_INFO['Филиал(ы)'][$i] = [
@@ -502,7 +502,7 @@ Class ArmnabAm_CertList extends simpleParser {
             {
                 continue;
             }
-            if (!isset($row['id']) && count($row['td']) == 3)
+            if (!isset($row['id']) && isset($row['td']) && count($row['td']) == 3)
             {
                 $PRODUCT_BATCH_DOCUMENTS[] = [
                     'наименование' => trim(@$row['td'][0]['__ref']->nodeValue),
@@ -540,7 +540,7 @@ Class ArmnabAm_CertList extends simpleParser {
             {
                 continue;
             }
-            if (!isset($row['id']) && count($row['td']) == 4)
+            if (!isset($row['id']) && isset($row['td']) && count($row['td']) == 4)
             {
                 $EXPERT_INFO[] = [
                     'Имя' => trim(@$row['td'][0]['__ref']->nodeValue),
