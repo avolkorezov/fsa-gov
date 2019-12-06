@@ -39,6 +39,13 @@ class RTRTS01001 extends Model
         'ProductExtraInfo',
         'EXPERT_INFO',
         'Attachments',
+
+        'APPLICANT_ADDRESS',
+        'APPLICANT_CONTACTS',
+        'PRODUCT_NAME',
+        'PRODUCT_MMATGAA',
+        'MANUFACTURER_ADDRESS',
+        'MANUFACTURER_NAME',
     ];
 
     protected $guarded = [];

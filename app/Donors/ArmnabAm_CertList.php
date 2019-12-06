@@ -171,8 +171,8 @@ Class ArmnabAm_CertList extends simpleParser {
         $data[] = [
             'STATUS' => $item->Status,
             'REG_NUMBER' => $item->REG_NUMBER,
-            'VALIDFROM_DATE' => $item->VALIDFROM_DATE,
-            'EXPIRATION_DATE' => $item->EXPIRATION_DATE,
+            'VALIDFROM_DATE' => !empty($item->VALIDFROM_DATE) ? date('Y-m-d', strtotime($item->VALIDFROM_DATE)) : null,
+            'EXPIRATION_DATE' => !empty($item->EXPIRATION_DATE) ? date('Y-m-d', strtotime($item->EXPIRATION_DATE)) : null,
             'SERIAL_NUMBER' => $item->SERIAL_NUMBER,
 
             'APPLICANT_CORP_NAME' => $item->APPLICANT_CORP_NAME,
@@ -299,7 +299,7 @@ Class ArmnabAm_CertList extends simpleParser {
         {
             $APPLICANT_PERS_CONTACTS[] = [
                 'Вид контакта' => @$row['td'][0]['__ref']->nodeValue,
-                'Контакт' => @$row['td'][0]['__ref']->nodeValue,
+                'Контакт' => @$row['td'][1]['__ref']->nodeValue,
             ];
         }
 
@@ -569,17 +569,59 @@ Class ArmnabAm_CertList extends simpleParser {
             ];
         }
 
+        if (isset($APPLICANT_PERS_ADDRESS[0]))
+        {
+            $APPLICANT_ADDRESS =
+                $APPLICANT_PERS_ADDRESS[0]['Регион'] . ', ' .
+                $APPLICANT_PERS_ADDRESS[0]['Район'] . ', ' .
+                $APPLICANT_PERS_ADDRESS[0]['Улица'] . ', ' .
+                $APPLICANT_PERS_ADDRESS[0]['Номер дома'] . ', ' .
+                $APPLICANT_PERS_ADDRESS[0]['Почтовый индекс'];
+        }
+
+        if (!empty($APPLICANT_PERS_CONTACTS))
+        {
+            foreach ($APPLICANT_PERS_CONTACTS as $CONTACT)
+            {
+                $APPLICANT_CONTACTS[] = trim(@$CONTACT['Контакт']);
+            }
+            $APPLICANT_CONTACTS = implode(', ', $APPLICANT_CONTACTS);
+        }
+
+        if (!empty($PRODUCT_LIST))
+        {
+            foreach ($PRODUCT_LIST as $PRODUCT)
+            {
+                $PRODUCT_NAME[] = trim(@$PRODUCT['Наименование продукции']);
+                $PRODUCT_MMATGAA[] = trim(@$PRODUCT['Код товара по ТН ВЭД ЕАЭС']);
+            }
+            $PRODUCT_NAME = implode(', ', $PRODUCT_NAME);
+            $PRODUCT_MMATGAA = implode(', ', $PRODUCT_MMATGAA);
+        }
+
+        if (isset($MANUFACTURER_INFO['Адрес(а)'][0]))
+        {
+            $MANUFACTURER_ADDRESS =
+                $MANUFACTURER_INFO['Адрес(а)'][0]['Регион'] . ', ' .
+                $MANUFACTURER_INFO['Адрес(а)'][0]['Район'] . ', ' .
+                $MANUFACTURER_INFO['Адрес(а)'][0]['Улица'] . ', ' .
+                $MANUFACTURER_INFO['Адрес(а)'][0]['Номер дома'] . ', ' .
+                $MANUFACTURER_INFO['Адрес(а)'][0]['Почтовый индекс'];
+        }
+
+//        print_r($MANUFACTURER_ADDRESS);die();
+
         $data[] = [
             'Doc_Type' => @$Doc_Type,
             'REG_NUMBER' => @$REG_NUMBER,
-            'VALIDFROM_DATE' => @$VALIDFROM_DATE,
-            'EXPIRATION_DATE' => @$EXPIRATION_DATE,
+            'VALIDFROM_DATE' => !empty($VALIDFROM_DATE) ? date('Y-m-d', strtotime($VALIDFROM_DATE)) : null,
+            'EXPIRATION_DATE' => !empty($EXPIRATION_DATE) ? date('Y-m-d', strtotime($EXPIRATION_DATE)) : null,
             'SERIAL_NUMBER' => @$SERIAL_NUMBER,
             'ORG_PO_OCENKE_SOOTVET' => @$ORG_PO_OCENKE_SOOTVET,
             'SCHEME_SERTIFIC' => @$SCHEME_SERTIFIC,
             'TYPE_OBJ_TR' => @$TYPE_OBJ_TR,
             'STATUS' => @$STATUS,
-            'STATUS_DATE_BEGIN' => @$STATUS_DATE_BEGIN,
+            'STATUS_DATE_BEGIN' => !empty($STATUS_DATE_BEGIN) ? date('Y-m-d', strtotime($STATUS_DATE_BEGIN)) : null,
             'TK_REKVISIT' => @$TK_REKVISIT,
             'APPLICANT_PERS_NAME' => @$APPLICANT_PERS_NAME,
             'APPLICANT_PERS_OPF' => @$APPLICANT_PERS_OPF,
@@ -597,6 +639,13 @@ Class ArmnabAm_CertList extends simpleParser {
             'ProductExtraInfo' => serialize($ProductExtraInfo),
             'EXPERT_INFO' => serialize($EXPERT_INFO),
             'Attachments' => serialize($Attachments),
+
+            'APPLICANT_ADDRESS' => @$APPLICANT_ADDRESS,
+            'APPLICANT_CONTACTS' => @$APPLICANT_CONTACTS,
+            'PRODUCT_NAME' => @$PRODUCT_NAME,
+            'PRODUCT_MMATGAA' => @$PRODUCT_MMATGAA,
+            'MANUFACTURER_ADDRESS' => @$MANUFACTURER_ADDRESS,
+            'MANUFACTURER_NAME' => @$MANUFACTURER_INFO['Изготовитель']['Наименование хозяйствующего субъекта'],
         ];
 //        print_r($data);die();
 
