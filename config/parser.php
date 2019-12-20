@@ -20,6 +20,7 @@ return [
             'ArmnabAm_CertList' => \App\Donors\ArmnabAm_CertList::class,
             'ArmnabAm_LaboratoryList' => \App\Donors\ArmnabAm_LaboratoryList::class,
             'ArmnabAm_CertListMode10' => \App\Donors\ArmnabAm_CertListMode10::class,
+            'TsouzBelgissBy' => \App\Donors\TsouzBelgissBy::class,
         ]
     ],
 

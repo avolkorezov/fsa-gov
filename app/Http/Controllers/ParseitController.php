@@ -15,6 +15,7 @@ use App\Donors\Rss_pub_gost_r;
 use App\Donors\Rss_rf_pub;
 use App\Donors\Rss_rf_ts_gost_pub;
 use App\Donors\Rss_ts_pub;
+use App\Donors\TsouzBelgissBy;
 use App\Models\ArmnabAmCert;
 use App\Models\ArmnabAmLaboratory;
 use App\Models\Datum;
@@ -538,6 +539,87 @@ class ParseitController extends Controller
                             else
                             {
                                 RdsTsPub::create($row);
+//                                die('create');
+                            }
+                        }
+                    }
+                }
+                $find->update(['parseit' => 1, 'available' => 0]);
+//                break;
+            }
+            else
+            {
+                die('Done');
+            }
+            if ($start < time() - ($exec_time - 10))
+            {
+                die('End exec time');
+            }
+        }
+        while( true );
+    }
+
+
+    public function parseit_TsouzBelgissBy(Request $request)
+    {
+        error_reporting(E_ALL);
+        ini_set('display_errors', 1);
+        $exec_time = env('RUN_TIME', 0);
+        $start = time();
+        @set_time_limit($exec_time);
+        $donorClassName = 'TsouzBelgissBy';
+        $donor = new TsouzBelgissBy();
+        $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
+        $opt['cookieFile'] = $donor->cookieFile;
+        // isset($request->only_new) ? Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'parseit' => 1])->update(['available' => 0]) : '' ;
+        do
+        {
+            $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2, 'updated_at' => NULL])->first(); // в первую очередь новые
+            if ( !$find )
+            {
+                $find = Source::where(['donor_class_name' => $donorClassName, 'available' => 1, 'version' => 2])->first(); // если нет новых, обновляем старое
+            }
+            if ($find)
+            {
+                $opt['param'] = unserialize($find->param);
+
+                try
+                {
+                    sleep(1);
+                    $rows = $donor->getData($find->source, $opt);
+                }
+                catch (\Exception $exception)
+                {
+                    if ($exception->getMessage() == '503 Service Temporarily Unavailable' )
+                    {
+                        LoggerController::logToFile("503 Service Temporarily Unavailable - {$find->source} ", 'info', [], false);
+                        sleep(5);
+                        continue;
+                    }
+                    throw new \Exception($exception);
+                }
+
+                if (!empty($rows))
+                {
+                    foreach ($rows as $row)
+                    {
+//                        print_r($row);
+                        $validator = Validator::make($row, \App\Models\TsouzBelgissBy::rules());
+                        if ($validator->fails())
+                        {
+                            $message = $validator->errors()->first();
+                            LoggerController::logToFile($message, 'info', $row, true);
+                        }
+                        else
+                        {
+                            if ($model = \App\Models\TsouzBelgissBy::where(['certdecltr_id' => $row['certdecltr_id']])->get()->first())
+                            {
+                                $model->update($row);
+//                                die('update');
+                            }
+                            else
+                            {
+                                \App\Models\TsouzBelgissBy::create($row);
 //                                die('create');
                             }
                         }
