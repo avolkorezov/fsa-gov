@@ -55,7 +55,7 @@ Class TsouzBelgissBy extends simpleParser {
         }
         if (!isset($opt['startDate']))
         {
-            $before10day = time() - (60*60*24*1);
+            $before10day = time() - (60*60*24*2);
             $opt['startDate'] = date('d.m.Y', $before10day);
             $opt['endDate'] = date('d.m.Y');
         }
