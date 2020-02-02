@@ -265,7 +265,7 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
     {
         $data = false;
 
-//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/23656";
+//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/22017";
 
         $source['cookieFile'] = $this->cookieFile;
 
@@ -623,7 +623,9 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
                 $MANUFACTURER_INFO['Адрес(а)'][0]['Номер дома'] . ', ' .
                 $MANUFACTURER_INFO['Адрес(а)'][0]['Почтовый индекс'];
         }
-
+        $VALIDFROM_DATE = str_replace('/', '-', $VALIDFROM_DATE);
+        $EXPIRATION_DATE = str_replace('/', '-', $EXPIRATION_DATE);
+//        \print_r(strtotime($VALIDFROM_DATE));die();
         $data[] = [
             'Doc_Type' => @$Doc_Type,
             'REG_NUMBER' => @$REG_NUMBER,
