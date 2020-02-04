@@ -127,6 +127,8 @@ Class ArmnabAm_CertList extends simpleParser {
     {
         $data = false;
 
+//        $url = "http://armnab.am/MMCert01RU_view?Number=008/S.A-0021-2017";
+
         $urlParsed = parse_url($url);
         $query = parse_query($urlParsed['query']);
         $number = $query['Number'];
@@ -167,12 +169,21 @@ Class ArmnabAm_CertList extends simpleParser {
             return [];
         }
         $item = $items[0];
+
+        $VALIDFROM_DATE = $item->VALIDFROM_DATE;
+        $EXPIRATION_DATE = $item->EXPIRATION_DATE;
+
+        $VALIDFROM_DATE = str_replace('/', '-', $VALIDFROM_DATE);
+        $EXPIRATION_DATE = str_replace('/', '-', $EXPIRATION_DATE);
+
 //        print_r($item);die();
         $data[] = [
             'STATUS' => $item->Status,
             'REG_NUMBER' => $item->REG_NUMBER,
-            'VALIDFROM_DATE' => !empty($item->VALIDFROM_DATE) ? date('Y-m-d', strtotime($item->VALIDFROM_DATE)) : null,
-            'EXPIRATION_DATE' => !empty($item->EXPIRATION_DATE) ? date('Y-m-d', strtotime($item->EXPIRATION_DATE)) : null,
+
+            'VALIDFROM_DATE' => !empty($VALIDFROM_DATE) ? date('Y-m-d', strtotime($VALIDFROM_DATE)) : null,
+            'EXPIRATION_DATE' => !empty($EXPIRATION_DATE) ? date('Y-m-d', strtotime($EXPIRATION_DATE)) : null,
+
             'SERIAL_NUMBER' => $item->SERIAL_NUMBER,
 
             'APPLICANT_CORP_NAME' => $item->APPLICANT_CORP_NAME,
@@ -243,7 +254,7 @@ Class ArmnabAm_CertList extends simpleParser {
     {
         $data = false;
 
-//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/10027";
+//        $url = "http://register.armnab.am/R_TR_TS_01_001/docview/23381";
 
         $source['cookieFile'] = $this->cookieFile;
 
@@ -610,6 +621,9 @@ Class ArmnabAm_CertList extends simpleParser {
         }
 
 //        print_r($MANUFACTURER_ADDRESS);die();
+
+        $VALIDFROM_DATE = str_replace('/', '-', $VALIDFROM_DATE);
+        $EXPIRATION_DATE = str_replace('/', '-', $EXPIRATION_DATE);
 
         $data[] = [
             'Doc_Type' => @$Doc_Type,

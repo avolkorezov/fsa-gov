@@ -941,6 +941,8 @@ class ParseitController extends Controller
                         break;
 
                     case 'R_TR_TS_01_001':
+                        $find->update(['parseit' => 1, 'available' => 0]);
+//                        continue;
                         $rows = $donor->getDataR_TR_TS_01_001($find->source, $opt);
                         break;
 
