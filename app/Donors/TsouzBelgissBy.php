@@ -105,7 +105,7 @@ Class TsouzBelgissBy extends simpleParser {
         $data = false;
 
         $number = $source['param']['certdecltr_id'];
-//        $number = 713720;
+//        $number = 677173;
 
         $source['cookieFile'] = $this->cookieFile;
 
@@ -206,8 +206,14 @@ Class TsouzBelgissBy extends simpleParser {
         $StartDate = trim($content->certdecltr_ConformityDocDetails->DocStatusDetails->StartDate);
         $StartDate = !empty($StartDate) ? date('Y-m-d', strtotime($StartDate)) : null;
 
+        $DocStartDate = trim($content->certdecltr_ConformityDocDetails->DocStartDate);
+        $DocStartDate = !empty($DocStartDate) ? date('Y-m-d', strtotime($DocStartDate)) : null;
+
         $EndDate = trim(@$content->certdecltr_ConformityDocDetails->DocStatusDetails->EndDate);
         $EndDate = !empty($EndDate) ? date('Y-m-d', strtotime($EndDate)) : null;
+
+        $DocValidityDate = trim($content->certdecltr_ConformityDocDetails->DocValidityDate);
+        $DocValidityDate = !empty($DocValidityDate) ? date('Y-m-d', strtotime($DocValidityDate)) : null;
 
 
         $FullNameDetails = $this->getLineFioFromArray($content->certdecltr_ConformityDocDetails->FullNameDetails);
@@ -262,6 +268,8 @@ Class TsouzBelgissBy extends simpleParser {
             'certdecltr_id' => $content->certdecltr_id,
 
             'DocId' => $content->certdecltr_ConformityDocDetails->DocId,
+            'DocStartDate' => $DocStartDate,
+            'DocValidityDate' => $DocValidityDate,
             'ConformityDocKindCode' => $ConformityDocKindCode_SHORTNAME,
             'SingleListProductIndicator' => $content->certdecltr_ConformityDocDetails->SingleListProductIndicator != 'false' ? 'Да' : 'Нет',
             'CertificationSchemeCode' => $CertificationSchemeCode_Name,
@@ -307,7 +315,7 @@ Class TsouzBelgissBy extends simpleParser {
 
             'TechnicalRegulationObjectKindName' => $content->certdecltr_ConformityDocDetails->TechnicalRegulationObjectDetails->TechnicalRegulationObjectKindName,
             'ProductDetails' => serialize($ProductDetails),
-            'TROD_DocInformationDetails' => serialize($content->certdecltr_ConformityDocDetails->TechnicalRegulationObjectDetails->DocInformationDetails),
+            'DocInformationDetails' => serialize($content->certdecltr_ConformityDocDetails->TechnicalRegulationObjectDetails->DocInformationDetails),
 
             'ComplianceDocDetails' => serialize($content->certdecltr_ConformityDocDetails->ComplianceDocDetails),
 

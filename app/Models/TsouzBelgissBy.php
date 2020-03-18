@@ -15,6 +15,8 @@ class TsouzBelgissBy extends Model
         'certdecltr_id',
 
         'DocId',
+        'DocStartDate',
+        'DocValidityDate',
         'ConformityDocKindCode',
         'SingleListProductIndicator',
         'CertificationSchemeCode',
