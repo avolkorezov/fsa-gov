@@ -91,7 +91,8 @@ class TsouzBelgissBy extends Model
 // Заявитель,
 // Адрес , Телефон, Электронная почта, ОГРН, Изготовитель (иностранное ЮЛ), Адрес, Орган по сертификации.
         $products = [];
-        foreach (unserialize($this->ProductDetails) as $product)
+        $ProductDetails = unserialize($this->ProductDetails);
+        foreach ($ProductDetails as $product)
         {
             if (isset($product->ProductName))
             {
