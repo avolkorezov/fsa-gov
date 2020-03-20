@@ -82,9 +82,9 @@ class TsouzBelgissBy extends Model
 
     public function toCSVRow()
     {
-        die(phpinfo());
         $products = [];
-        $ProductDetails = unserialize($this->ProductDetails);
+        $data = preg_replace('!s:(\d+):"(.*?)";!e', "'s:'.strlen('$2').':\"$2\";'", $this->ProductDetails);
+        $ProductDetails = unserialize($data);
         foreach ($ProductDetails as $product)
         {
             if (isset($product->ProductName))
