@@ -1258,7 +1258,7 @@ class ParseitController extends Controller
             'offset' => 'required',
             'limit' => 'required',
         ]);
-        $fileName = "TsouzBelgissBy_1.csv";
+        $fileName = "TsouzBelgissBy_{$request->offset}_{$request->limit}.csv";
         file_put_contents($fileName, '');
         foreach (\App\Models\TsouzBelgissBy::offset($request->offset)->limit($request->limit)->get() as $row)
         {
