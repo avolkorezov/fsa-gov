@@ -1260,7 +1260,24 @@ class ParseitController extends Controller
         ]);
         $fileName = "TsouzBelgissBy_{$request->offset}_{$request->limit}.csv";
         file_put_contents($fileName, '');
-        foreach (\App\Models\TsouzBelgissBy::offset($request->offset)->limit($request->limit)->get() as $row)
+        $rows = \App\Models\TsouzBelgissBy::offset($request->offset)
+            ->limit($request->limit)
+            ->get([
+                'DocId',
+                'DocStartDate',
+                'DocValidityDate',
+                'TechnicalRegulationId',
+                'CertificationSchemeCode',
+                'App_BusinessEntityName',
+                'App_SubjectAddressDetails',
+                'App_BusinessEntityId',
+                'Manuf_BusinessEntityName',
+                'Manuf_AddressV4Details',
+                'BusinessEntityName',
+                'ProductDetails',
+                'App_CommunicationDetails',
+                ]);
+        foreach ($rows as $row)
         {
             $line = $row->toCSVRow();
             file_put_contents($fileName, $line, FILE_APPEND);
