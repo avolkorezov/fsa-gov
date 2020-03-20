@@ -82,14 +82,7 @@ class TsouzBelgissBy extends Model
 
     public function toCSVRow()
     {
-//        Номер декларации/сертификата,
-// Дата начала действия,
-// Дата окончания действия,
-// Продукция,
-// Технический регламент,
-// Схема декларирования,
-// Заявитель,
-// Адрес , Телефон, Электронная почта, ОГРН, Изготовитель (иностранное ЮЛ), Адрес, Орган по сертификации.
+        die(phpinfo());
         $products = [];
         $ProductDetails = unserialize($this->ProductDetails);
         foreach ($ProductDetails as $product)
