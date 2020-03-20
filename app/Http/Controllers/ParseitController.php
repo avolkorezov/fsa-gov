@@ -1251,4 +1251,19 @@ class ParseitController extends Controller
 
         return $response;
     }
+
+    public function exportToFileTsouzBelgissBy(Request $request)
+    {
+        $this->validate($request, [
+            'offset' => 'required',
+            'limit' => 'required',
+        ]);
+        $fileName = "TsouzBelgissBy_1.csv";
+        file_put_contents($fileName, '');
+        foreach (\App\Models\TsouzBelgissBy::offset($request->offset)->limit($request->limit)->get() as $row)
+        {
+            $line = $row->toCSVRow();
+            file_put_contents($fileName, $line, FILE_APPEND);
+        }
+    }
 }

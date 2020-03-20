@@ -79,4 +79,65 @@ class TsouzBelgissBy extends Model
             'certdecltr_id' => 'required',
         ];
     }
+
+    public function toCSVRow()
+    {
+//        Номер декларации/сертификата,
+// Дата начала действия,
+// Дата окончания действия,
+// Продукция,
+// Технический регламент,
+// Схема декларирования,
+// Заявитель,
+// Адрес , Телефон, Электронная почта, ОГРН, Изготовитель (иностранное ЮЛ), Адрес, Орган по сертификации.
+        $products = [];
+        foreach (unserialize($this->ProductDetails) as $product)
+        {
+            if (isset($product->ProductName))
+            {
+                $products[] = $product->ProductName;
+            }
+        }
+        $comunications = explode(';', $this->App_CommunicationDetails);
+        $phone = '';
+        $email = '';
+        foreach ($comunications as $comunication)
+        {
+            $comunication = trim($comunication);
+            if (strpos($comunication, 'TE'))
+            {
+                $phone = $comunication;
+            }
+            else if (strpos($comunication, 'EM'))
+            {
+                $email = $comunication;
+            }
+        }
+
+//        print_r($comunications);die();
+        $row = [
+            'Номер декларации/сертификата' => $this->DocId,
+            'Дата начала действия' => date('d.m.Y', strtotime($this->DocStartDate)),
+            'Дата окончания действия' => date('d.m.Y', strtotime($this->DocValidityDate)),
+            'Продукция' => implode(', ', $products),
+            'Технический регламент' => $this->TechnicalRegulationId,
+            'Схема декларирования' => $this->CertificationSchemeCode,
+            'Заявитель' => $this->App_BusinessEntityName,
+            'Адрес' => $this->App_SubjectAddressDetails,
+            'Телефон' => @$phone,
+            'Электронная почта' => @$email,
+            'ОГРН' => $this->App_BusinessEntityId,
+            'Изготовитель (иностранное ЮЛ)' => $this->Manuf_BusinessEntityName,
+            'Адрес(изготовителя)' => $this->Manuf_AddressV4Details,
+            'Орган по сертификации' => $this->BusinessEntityName,
+        ];
+//        print_r($row);die();
+//        $line = '"';
+        $line = implode('Ω', $row);
+        $line = str_replace("\n\r", ' ', $line);
+        $line = str_replace("\r\n", ' ', $line);
+        $line = str_replace("\r", ' ', $line);
+        $line = str_replace("\n", ' ', $line);
+        return $line."\r";
+    }
 }
