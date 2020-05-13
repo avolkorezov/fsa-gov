@@ -55,6 +55,8 @@ Route::get('/parseit/rds_ts_pub_new', 'ParseitController@rds_ts_pub_new');
 
 Route::get('/parseit/TsouzBelgissBy', 'ParseitController@parseit_TsouzBelgissBy');
 Route::get('/export-to-file/TsouzBelgissBy', 'ParseitController@exportToFileTsouzBelgissBy');
+Route::get('/export-to-file/RdsTsPub', 'ParseitController@exportFromRdsTsPubToCSV');
+Route::get('/export-to-file/RssTsPub', 'ParseitController@exportFromRssTsPubToCSV');
 
 Route::get('/parseit/armnabAm_cert', 'ParseitController@armnabAm_cert');
 Route::get('/parseit/armnabAm_certList', 'ParseitController@armnabAm_certList');

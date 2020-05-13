@@ -1276,10 +1276,80 @@ class ParseitController extends Controller
                 'BusinessEntityName',
                 'ProductDetails',
                 'App_CommunicationDetails',
-                ]);
+            ]);
         foreach ($rows as $row)
         {
             $line = $row->toCSVRow();
+            file_put_contents($fileName, $line, FILE_APPEND);
+        }
+    }
+
+    public function exportFromRdsTsPubToCSV(Request $request)
+    {
+        $this->validate($request, [
+            'offset' => 'required',
+            'limit' => 'required',
+        ]);
+        $fileName = "RdsTsPub_{$request->offset}_{$request->limit}.csv";
+        file_put_contents($fileName, '');
+        $rows = \App\Models\RdsTsPub::where('tech_reg', '!=', '')
+            ->where('a_applicant_info-rds-app_legal_person-email', '!=', '')
+            ->offset($request->offset)
+            ->limit($request->limit)
+            ->get([
+                'tech_reg',
+                'a_applicant_info-rds-app_legal_person-email',
+            ]);
+        foreach ($rows as $row)
+        {
+            $rowArray = $row->toArray();
+            $fields = [
+                'Технический регламент' => $rowArray['tech_reg'],
+                'Электронная почта' => $rowArray['a_applicant_info-rds-app_legal_person-email'],
+            ];
+//        print_r($fields);die();
+//        $line = '"';
+            $line = implode('Ω', $fields);
+            $line = str_replace("\n\r", ' ', $line);
+            $line = str_replace("\r\n", ' ', $line);
+            $line = str_replace("\r", ' ', $line);
+            $line = str_replace("\n", ' ', $line);
+            $line.="\r";
+            file_put_contents($fileName, $line, FILE_APPEND);
+        }
+    }
+
+    public function exportFromRssTsPubToCSV(Request $request)
+    {
+        $this->validate($request, [
+            'offset' => 'required',
+            'limit' => 'required',
+        ]);
+        $fileName = "RssTsPub_{$request->offset}_{$request->limit}.csv";
+        file_put_contents($fileName, '');
+        $rows = \App\Models\RssTsPub::where('tech_reg', '!=', '')
+            ->where('a_applicant_info-rss-app_legal_person-email', '!=', '')
+            ->offset($request->offset)
+            ->limit($request->limit)
+            ->get([
+                'tech_reg',
+                'a_applicant_info-rss-app_legal_person-email',
+            ]);
+        foreach ($rows as $row)
+        {
+            $rowArray = $row->toArray();
+            $fields = [
+                'Технический регламент' => $rowArray['tech_reg'],
+                'Электронная почта' => $rowArray['a_applicant_info-rss-app_legal_person-email'],
+            ];
+//        print_r($fields);die();
+//        $line = '"';
+            $line = implode('Ω', $fields);
+            $line = str_replace("\n\r", ' ', $line);
+            $line = str_replace("\r\n", ' ', $line);
+            $line = str_replace("\r", ' ', $line);
+            $line = str_replace("\n", ' ', $line);
+            $line.="\r";
             file_put_contents($fileName, $line, FILE_APPEND);
         }
     }
