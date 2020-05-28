@@ -1290,22 +1290,22 @@ class ParseitController extends Controller
             'offset' => 'required',
             'limit' => 'required',
         ]);
-        $fileName = "RdsTsPub_{$request->offset}_{$request->limit}.csv";
+        $fileName = "RdsTsPub_phone_{$request->offset}_{$request->limit}.csv";
         file_put_contents($fileName, '');
         $rows = \App\Models\RdsTsPub::where('tech_reg', '!=', '')
-            ->where('a_applicant_info-rds-app_legal_person-email', '!=', '')
+            ->where('a_applicant_info-rds-app_legal_person-phone', '!=', '')
             ->offset($request->offset)
             ->limit($request->limit)
             ->get([
                 'tech_reg',
-                'a_applicant_info-rds-app_legal_person-email',
+                'a_applicant_info-rds-app_legal_person-phone',
             ]);
         foreach ($rows as $row)
         {
             $rowArray = $row->toArray();
             $fields = [
                 'Технический регламент' => $rowArray['tech_reg'],
-                'Электронная почта' => $rowArray['a_applicant_info-rds-app_legal_person-email'],
+                'Телефон' => $rowArray['a_applicant_info-rds-app_legal_person-phone'],
             ];
 //        print_r($fields);die();
 //        $line = '"';
@@ -1325,22 +1325,22 @@ class ParseitController extends Controller
             'offset' => 'required',
             'limit' => 'required',
         ]);
-        $fileName = "RssTsPub_{$request->offset}_{$request->limit}.csv";
+        $fileName = "RssTsPub_phone_{$request->offset}_{$request->limit}.csv";
         file_put_contents($fileName, '');
         $rows = \App\Models\RssTsPub::where('tech_reg', '!=', '')
-            ->where('a_applicant_info-rss-app_legal_person-email', '!=', '')
+            ->where('a_applicant_info-rss-app_legal_person-phone', '!=', '')
             ->offset($request->offset)
             ->limit($request->limit)
             ->get([
                 'tech_reg',
-                'a_applicant_info-rss-app_legal_person-email',
+                'a_applicant_info-rss-app_legal_person-phone',
             ]);
         foreach ($rows as $row)
         {
             $rowArray = $row->toArray();
             $fields = [
                 'Технический регламент' => $rowArray['tech_reg'],
-                'Электронная почта' => $rowArray['a_applicant_info-rss-app_legal_person-email'],
+                'Телефон' => $rowArray['a_applicant_info-rss-app_legal_person-phone'],
             ];
 //        print_r($fields);die();
 //        $line = '"';
