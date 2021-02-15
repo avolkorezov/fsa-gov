@@ -14,8 +14,8 @@ Class ArmnabAm_LaboratoryList extends simpleParser {
     public $data = [];
     public $reload = [];
     public $project = 'armnab.am';
-    public $project_link = 'http://armnab.am/';
-    public $source = 'http://armnab.am/LaboratoryListRU';
+    public $project_link = 'https://armnab.am/';
+    public $source = 'https://armnab.am/LaboratoryListRU';
     public $cache = false;
     public $proxy = false;
     public $cookieFile = '';
@@ -37,9 +37,9 @@ Class ArmnabAm_LaboratoryList extends simpleParser {
 
         $opt['headers'] = [
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-//            'Accept-Encoding: gzip, deflate',
+            'Accept-Encoding: gzip, deflate',
             'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
-//            'Content-Type: application/json; charset=UTF-8',
+            'Content-Type: application/x-www-form-urlencoded'
         ];
         $opt['host'] = 'armnab.am';
 
@@ -50,8 +50,8 @@ Class ArmnabAm_LaboratoryList extends simpleParser {
         $opt['post'] = "{'Number':'ALL'}";
         $opt['ajax'] = true;
         $opt['json'] = true;
-        $opt['origin'] = 'http://armnab.am';
-        $opt['referer'] = 'http://armnab.am/LaboratoryListRU';
+        $opt['origin'] = 'https://armnab.am';
+        $opt['referer'] = 'https://armnab.am/LaboratoryListRU';
         $opt['timeout'] = 120;
         $opt['headers'] = [
             'Accept: application/json, text/javascript; q=0.01',
@@ -61,7 +61,7 @@ Class ArmnabAm_LaboratoryList extends simpleParser {
             'X-Requested-With: XMLHttpRequest'
         ];
 
-        $content = $this->loadUrl('http://armnab.am/LaboratoryRUService.asmx/GetObjects', $opt);
+        $content = $this->loadUrl('https://armnab.am/LaboratoryRUService.asmx/GetObjects', $opt);
 
         if (!isset($content->d))
         {
@@ -113,8 +113,8 @@ Class ArmnabAm_LaboratoryList extends simpleParser {
         $source['post'] = "{'Number':'{$number}'}";
         $source['ajax'] = true;
         $source['json'] = true;
-        $source['origin'] = 'http://armnab.am';
-        $source['referer'] = 'http://armnab.am/LaboratoryListRU';
+        $source['origin'] = 'https://armnab.am';
+        $source['referer'] = 'http:s//armnab.am/LaboratoryListRU';
         $source['timeout'] = 120;
         $source['headers'] = [
             'Accept: application/json, text/javascript; q=0.01',
@@ -124,7 +124,7 @@ Class ArmnabAm_LaboratoryList extends simpleParser {
             'X-Requested-With: XMLHttpRequest'
         ];
 
-        $content = $this->loadUrl('http://armnab.am/LaboratoryRUService.asmx/GetObjects', $source);
+        $content = $this->loadUrl('https://armnab.am/LaboratoryRUService.asmx/GetObjects', $source);
 
         if (!isset($content->d))
         {

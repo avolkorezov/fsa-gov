@@ -101,8 +101,29 @@ class CreateSourcesTable extends Migration
         \App\Models\Source::create([
             'donor_class_name' => 'ArmnabAm_Cert',
             'name' => 'Национальный орган по аккредитации Армении',
-            'hash' => md5('http://armnab.am/CertificationBodyListRU'),
-            'source' => 'http://armnab.am/CertificationBodyListRU',
+            'hash' => md5('https://armnab.am/CertificationBodyListRU'),
+            'source' => 'https://armnab.am/CertificationBodyListRU',
+            'version' => '1',
+        ]);
+        \App\Models\Source::create([
+            'donor_class_name' => 'ArmnabAm_CertList',
+            'name' => 'Сертификаты соответствия',
+            'hash' => md5('https://armnab.am/CertlistRU?mode=5'),
+            'source' => 'https://armnab.am/CertlistRU?mode=5',
+            'version' => '1',
+        ]);
+        \App\Models\Source::create([
+            'donor_class_name' => 'ArmnabAm_CertListMode10',
+            'name' => 'Декларации о соответствии',
+            'hash' => md5('https://armnab.am/CertlistRU?mode=10'),
+            'source' => 'https://armnab.am/CertlistRU?mode=10',
+            'version' => '1',
+        ]);
+        \App\Models\Source::create([
+            'donor_class_name' => 'ArmnabAm_LaboratoryList',
+            'name' => 'Испытательные лаборатории',
+            'hash' => md5('https://armnab.am/LaboratoryListRU'),
+            'source' => 'https://armnab.am/LaboratoryListRU',
             'version' => '1',
         ]);
     }

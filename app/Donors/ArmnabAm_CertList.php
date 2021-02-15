@@ -16,7 +16,7 @@ Class ArmnabAm_CertList extends simpleParser {
     public $reload = [];
     public $project = 'armnab.am';
     public $project_link = 'http://armnab.am/';
-    public $source = 'http://armnab.am/CertlistRU?mode=5';
+    public $source = 'https://armnab.am/CertlistRU?mode=5';
     public $cache = false;
     public $proxy = false;
     public $cookieFile = '';
@@ -149,23 +149,21 @@ Class ArmnabAm_CertList extends simpleParser {
         $source['origin'] = 'http://armnab.am';
         $source['referer'] = $url;
         $source['headers'] = [
-            'Accept: application/json, text/javascript; q=0.01',
-            'Accept-Encoding: gzip, deflate',
-            'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
-            'Content-Type: application/json; charset=UTF-8',
-            'X-Requested-With: XMLHttpRequest'
+            'accept: application/json, text/javascript, */*; q=0.01',
+            'accept-encoding: gzip, deflate, br',
+            'accept-language: en-US,en;q=0.9,ru;q=0.8',
+            'content-type: application/json; charset=UTF-8',
+            'x-requested-with: XMLHttpRequest'
         ];
 
-        $content = $this->loadUrl('http://armnab.am/CertificateRUService.asmx/GetMMCertificates', $source);
+        $content = $this->loadUrl('https://armnab.am/CertificateRUService.asmx/GetMMCertificates', $source);
 
-        if (!isset($content->d))
-        {
+        if (!isset($content->d)){
             return [];
         }
 
         $items = json_decode($content->d);
-        if (!isset($items[0]))
-        {
+        if (!isset($items[0])) {
             return [];
         }
         $item = $items[0];
@@ -175,8 +173,7 @@ Class ArmnabAm_CertList extends simpleParser {
 
         $VALIDFROM_DATE = str_replace('/', '-', $VALIDFROM_DATE);
         $EXPIRATION_DATE = str_replace('/', '-', $EXPIRATION_DATE);
-
-//        print_r($item);die();
+        
         $data[] = [
             'STATUS' => $item->Status,
             'REG_NUMBER' => $item->REG_NUMBER,

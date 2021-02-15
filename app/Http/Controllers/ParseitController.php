@@ -6,6 +6,7 @@ use App\Donors\ArmnabAm_Cert;
 use App\Donors\ArmnabAm_CertList;
 use App\Donors\ArmnabAm_CertListMode10;
 use App\Donors\ArmnabAm_LaboratoryList;
+use App\Donors\FgisGostRu;
 use App\Donors\Rao_rf_pub_new;
 use App\Donors\Rds_pub_gost_r;
 use App\Donors\Rds_rf_pub;
@@ -1079,6 +1080,30 @@ class ParseitController extends Controller
         while( true );
     }
 
+    public function FgisGostRu(Request $request)
+    {
+        $exec_time = env('RUN_TIME', 0);
+        @set_time_limit($exec_time);
+
+        $donor = new FgisGostRu();
+        $sources = $donor->getSources();
+
+        $fileName = "FgisGostRu.csv";
+        file_put_contents($fileName, '');
+
+        foreach ($sources as $fields)
+        {
+            $line = implode('Ω', $fields);
+            $line = str_replace("\n\r", ' ', $line);
+            $line = str_replace("\r\n", ' ', $line);
+            $line = str_replace("\r", ' ', $line);
+            $line = str_replace("\n", ' ', $line);
+            $line.="\r";
+            file_put_contents($fileName, $line, FILE_APPEND);
+        }
+
+    }
+
     public function rds_ts_pub(Request $request)
     {
         $exec_time = env('RUN_TIME', 0);
@@ -1322,7 +1347,7 @@ class ParseitController extends Controller
     public function exportFromRssTsPubToCSV(Request $request)
     {
         $this->validate($request, [
-            'offset' => 'required',
+            'offset' => 'requrds_ts_pubired',
             'limit' => 'required',
         ]);
         $fileName = "RssTsPub_phone_{$request->offset}_{$request->limit}.csv";

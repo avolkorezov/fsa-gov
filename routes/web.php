@@ -52,6 +52,7 @@ Route::get('/parseit/rss_pub_gost_r', 'ParseitController@rss_pub_gost_r');
 Route::get('/parseit/rds_rf_pub', 'ParseitController@rds_rf_pub');
 Route::get('/parseit/rds_ts_pub', 'ParseitController@rds_ts_pub');
 Route::get('/parseit/rds_ts_pub_new', 'ParseitController@rds_ts_pub_new');
+Route::get('/parseit/FgisGostRu', 'ParseitController@FgisGostRu');
 
 Route::get('/parseit/TsouzBelgissBy', 'ParseitController@parseit_TsouzBelgissBy');
 Route::get('/export-to-file/TsouzBelgissBy', 'ParseitController@exportToFileTsouzBelgissBy');

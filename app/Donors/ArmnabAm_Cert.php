@@ -14,8 +14,8 @@ Class ArmnabAm_Cert extends simpleParser {
     public $data = [];
     public $reload = [];
     public $project = 'armnab.am';
-    public $project_link = 'http://armnab.am/';
-    public $source = 'http://armnab.am/CertificationBodyListRU#';
+    public $project_link = 'https://armnab.am/';
+    public $source = 'https://armnab.am/CertificationBodyListRU#';
     public $cache = false;
     public $proxy = false;
     public $cookieFile = '';
@@ -43,9 +43,12 @@ Class ArmnabAm_Cert extends simpleParser {
         ];
         $opt['host'] = 'armnab.am';
 
+//        $opt['returnHeader'] = 1;
+//        $opt['getinfo'] = 1;
+
         $content = $this->loadUrl($this->source, $opt);
 
-//        $opt['returnHeader'] = 1;
+//        print_r($content);die();
 
         $opt['post'] = "{'Number':'ALL'}";
         $opt['ajax'] = true;
@@ -53,14 +56,14 @@ Class ArmnabAm_Cert extends simpleParser {
         $opt['origin'] = 'http://armnab.am';
         $opt['referer'] = 'http://armnab.am/CertificationBodyListRU';
         $opt['headers'] = [
-            'Accept: application/json, text/javascript; q=0.01',
-            'Accept-Encoding: gzip, deflate',
-            'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
-            'Content-Type: application/json; charset=UTF-8',
-            'X-Requested-With: XMLHttpRequest'
+            'accept: application/json, text/javascript, */*; q=0.01',
+            'accept-encoding: gzip, deflate, br',
+            'accept-language: en-US,en;q=0.9,ru;q=0.8',
+            'content-type: application/json; charset=UTF-8',
+            'x-requested-with: XMLHttpRequest'
         ];
 
-        $content = $this->loadUrl('http://armnab.am/CertificationBodyRUService.asmx/GetObjects', $opt);
+        $content = $this->loadUrl('https://armnab.am/CertificationBodyRUService.asmx/GetObjects', $opt);
 
         if (!isset($content->d))
         {
@@ -71,7 +74,7 @@ Class ArmnabAm_Cert extends simpleParser {
 
         foreach ($items as $k => $item)
         {
-            $href = "http://armnab.am/AP01T01RU_view?APNumber={$item->AP_NUMBER}";
+            $href = "https://armnab.am/AP01T01RU_view?APNumber={$item->AP_NUMBER}";
             $hash = md5($href);
             $sources[$hash]= [
                 'hash' => $hash,
@@ -115,14 +118,14 @@ Class ArmnabAm_Cert extends simpleParser {
         $source['origin'] = 'http://armnab.am';
         $source['referer'] = 'http://armnab.am/CertificationBodyListRU';
         $source['headers'] = [
-            'Accept: application/json, text/javascript; q=0.01',
-            'Accept-Encoding: gzip, deflate',
-            'Accept-Language:en-US,en;q=0.9,ru;q=0.8',
-            'Content-Type: application/json; charset=UTF-8',
-            'X-Requested-With: XMLHttpRequest'
+            'accept: application/json, text/javascript, */*; q=0.01',
+            'accept-encoding: gzip, deflate, br',
+            'accept-language: en-US,en;q=0.9,ru;q=0.8',
+            'content-type: application/json; charset=UTF-8',
+            'x-requested-with: XMLHttpRequest'
         ];
 
-        $content = $this->loadUrl('http://armnab.am/CertificationBodyRUService.asmx/GetObjects', $source);
+        $content = $this->loadUrl('https://armnab.am/CertificationBodyRUService.asmx/GetObjects', $source);
 
         if (!isset($content->d))
         {

@@ -15,8 +15,8 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
     public $data = [];
     public $reload = [];
     public $project = 'armnab.am';
-    public $project_link = 'http://armnab.am/';
-    public $source = 'http://armnab.am/CertlistRU?mode=10';
+    public $project_link = 'https://armnab.am/';
+    public $source = 'https://armnab.am/CertlistRU?mode=10';
     public $cache = false;
     public $proxy = false;
     public $cookieFile = '';
@@ -44,25 +44,20 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         ];
 
         $opt['host'] = 'armnab.am';
-        $opt['origin'] = 'http://armnab.am';
-        $opt['referer'] = 'http://armnab.am/CertlistRU?mode=10';
+        $opt['origin'] = 'https://armnab.am';
+        $opt['referer'] = 'https://armnab.am/CertlistRU?mode=10';
 
-        if (isset($opt['url']))
-        {
+        if (isset($opt['url'])) {
 //            $opt['returnHeader'] = 1;
-            if (isset($opt['pageEnd']) && $opt['page'] > $opt['pageEnd'])
-            {
+            if (isset($opt['pageEnd']) && $opt['page'] > $opt['pageEnd']) {
                 return [];
             }
             $content = $this->loadUrl($opt['url'], $opt);
 
-            if (empty($content))
-            {
+            if (empty($content)) {
                 return [];
             }
-        }
-        else
-        {
+        } else {
             $opt['page'] = 1;
             $content = $this->loadUrl($this->source, $opt);
         }
@@ -71,13 +66,11 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
 
         $docViews = $nokogiri->get("#MainContent_ContentRU_gvDocs a[target=_blank]")->toArray();
 
-        if (!isset($docViews[0]))
-        {
+        if (!isset($docViews[0])) {
             return [];
         }
 
-        foreach ($docViews as $k => $item)
-        {
+        foreach ($docViews as $k => $item) {
             $href = $item['href'];
             $hash = md5($href);
             $sources[$hash]= [
@@ -90,19 +83,13 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
             ];
         }
 
-        if (isset($opt['pageBegin']) && $opt['page'] < $opt['pageBegin'])
-        {
-            if ($opt['page'] + 10 < $opt['pageBegin'])
-            {
+        if (isset($opt['pageBegin']) && $opt['page'] < $opt['pageBegin']) {
+            if ($opt['page'] + 10 < $opt['pageBegin']) {
                 $opt['page'] = $opt['page'] + 10;
-            }
-            else
-            {
+            } else {
                 $opt['page'] = $opt['pageBegin'];
             }
-        }
-        else
-        {
+        } else {
             $opt['page'] = $opt['page'] + 1;
         }
 //        $opt['page'] = 2;
@@ -111,8 +98,7 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $__VIEWSTATEGENERATOR = $nokogiri->get('#__VIEWSTATEGENERATOR')->toArray();
         $__EVENTVALIDATION = $nokogiri->get('#__EVENTVALIDATION')->toArray();
 
-        if (!isset($__VIEWSTATE[0]['value']) || !isset($__VIEWSTATEGENERATOR[0]['value']) || !isset($__EVENTVALIDATION[0]['value']))
-        {
+        if (!isset($__VIEWSTATE[0]['value']) || !isset($__VIEWSTATEGENERATOR[0]['value']) || !isset($__EVENTVALIDATION[0]['value'])) {
             return $sources;
         }
 
@@ -165,7 +151,7 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
         $source['post'] = "{'DeclRegNumber':'{$number}', 'StatusFilter':'ALL'}";
         $source['ajax'] = true;
         $source['json'] = true;
-        $source['origin'] = 'http://armnab.am';
+        $source['origin'] = 'https://armnab.am';
         $source['referer'] = $url;
         $source['headers'] = [
             'Accept: application/json, text/javascript; q=0.01',
@@ -175,16 +161,14 @@ Class ArmnabAm_CertListMode10 extends simpleParser {
             'X-Requested-With: XMLHttpRequest'
         ];
 
-        $content = $this->loadUrl('http://armnab.am/DeclarationRUService.asmx/GetDeclarations', $source);
+        $content = $this->loadUrl('https://armnab.am/DeclarationRUService.asmx/GetDeclarations', $source);
 
-        if (!isset($content->d))
-        {
+        if (!isset($content->d)) {
             return [];
         }
 
         $items = json_decode($content->d);
-        if (!isset($items[0]))
-        {
+        if (!isset($items[0])) {
             return [];
         }
         $item = $items[0];
