@@ -1322,15 +1322,20 @@ class ParseitController extends Controller
             ->offset($request->offset)
             ->limit($request->limit)
             ->get([
-                'tech_reg',
-                'a_applicant_info-rds-app_legal_person-phone',
+                'a_product_info-rds-product_ts-product_name',
+                'a_product_info-rds-product_ts-tn_ved',
+                'a_product_info-standard_designation',
+                'a_product_info-name_of_the_standard'
             ]);
         foreach ($rows as $row)
         {
             $rowArray = $row->toArray();
             $fields = [
-                'Технический регламент' => $rowArray['tech_reg'],
-                'Телефон' => $rowArray['a_applicant_info-rds-app_legal_person-phone'],
+                'Общее наименование продукции' => $rowArray['a_product_info-rds-product_ts-product_name'],
+                'Код ТН ВЭД ЕАЭС' => $rowArray['a_product_info-rds-product_ts-tn_ved'],
+                'Наименование (обозначение) продукции' => $rowArray['a_product_info-rds-product_ts-product_name'],
+                'Обозначение стандарта, нормативного документа' => $rowArray['a_product_info-standard_designation'],
+                'Наименование стандарта, нормативного документа' => $rowArray['a_product_info-name_of_the_standard'],
             ];
 //        print_r($fields);die();
 //        $line = '"';
