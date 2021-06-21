@@ -244,9 +244,7 @@ class RdsTsPub extends Model
         'a_date_finish',
         'a_is_date_finish',
         'conformityDocType',
-        'techregProductList',
-        'a_product_info-standard_designation',
-        'a_product_info-name_of_the_standard'
+        'techregProductList'
     ];
 
     protected $guarded = [];
