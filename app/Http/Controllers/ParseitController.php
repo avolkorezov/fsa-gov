@@ -1317,9 +1317,10 @@ class ParseitController extends Controller
         ]);
         $fileName = "RdsTsPub_phone_{$request->offset}_{$request->limit}.csv";
         file_put_contents($fileName, '');
-        $rows = \App\Models\RdsTsPub::where('tech_reg', '!=', '')
-            ->where('a_applicant_info-rds-app_legal_person-phone', '!=', '')
-            ->offset($request->offset)
+        $rows = \App\Models\RdsTsPub::
+//            where('tech_reg', '!=', '')
+//            ->where('a_applicant_info-rds-app_legal_person-phone', '!=', '')
+            offset($request->offset)
             ->limit($request->limit)
             ->get([
                 'a_product_info-rds-product_ts-product_name',
