@@ -604,7 +604,6 @@ class ParseitController extends Controller
                 {
                     foreach ($rows as $row)
                     {
-//                        print_r($row);
                         $validator = Validator::make($row, \App\Models\TsouzBelgissBy::rules());
                         if ($validator->fails())
                         {
@@ -616,18 +615,15 @@ class ParseitController extends Controller
                             if ($model = \App\Models\TsouzBelgissBy::where(['certdecltr_id' => $row['certdecltr_id']])->get()->first())
                             {
                                 $model->update($row);
-//                                die('update');
                             }
                             else
                             {
                                 \App\Models\TsouzBelgissBy::create($row);
-//                                die('create');
                             }
                         }
                     }
                 }
                 $find->update(['parseit' => 1, 'available' => 0]);
-//                break;
             }
             else
             {
@@ -1340,7 +1336,7 @@ class ParseitController extends Controller
             ];
 //        print_r($fields);die();
 //        $line = '"';
-            $line = implode('Ω', $fields);
+            $line = implode('^', $fields);
             $line = str_replace("\n\r", ' ', $line);
             $line = str_replace("\r\n", ' ', $line);
             $line = str_replace("\r", ' ', $line);

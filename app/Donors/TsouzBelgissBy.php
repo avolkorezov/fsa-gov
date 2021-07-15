@@ -2,12 +2,7 @@
 
 namespace App\Donors;
 
-use App\Http\Controllers\LoggerController;
-use App\Models\ProxyList;
-use ParseIt\_String;
-use ParseIt\nokogiri;
 use App\Donors\ParseIt\simpleParser;
-use ParseIt\ParseItHelpers;
 
 Class TsouzBelgissBy extends simpleParser {
 
@@ -34,6 +29,8 @@ Class TsouzBelgissBy extends simpleParser {
         $sources = [];
 
         $opt['cookieFile'] = $this->cookieFile;
+
+        $opt['proxy'] = '85.239.42.173:8085';
 
         $opt['headers'] = [
             "Host: api.belgiss.by",
@@ -108,6 +105,7 @@ Class TsouzBelgissBy extends simpleParser {
 //        $number = 677173;
 
         $source['cookieFile'] = $this->cookieFile;
+        $source['proxy'] = '85.239.42.173:8085';
 
         $source['host'] = 'api.belgiss.by';
         $source['origin'] = 'https://tsouz.belgiss.by';
@@ -150,6 +148,9 @@ Class TsouzBelgissBy extends simpleParser {
         $CertificationSchemeCode_Name = '';
         foreach ($certificationSchemeCode->items as $item)
         {
+            if (!isset($content->certdecltr_ConformityDocDetails->CertificationSchemeCode)) {
+                continue;
+            }
             if ($item->CertificationSchemeCode_Code == $content->certdecltr_ConformityDocDetails->CertificationSchemeCode)
             {
                 $CertificationSchemeCode_Name = $item->CertificationSchemeCode_Name;
@@ -239,16 +240,20 @@ Class TsouzBelgissBy extends simpleParser {
 
         $ConformityAuthorityV2Details_CommunicationDetails = $this->getCommunicationDetailsLineFromArray($content->certdecltr_ConformityDocDetails->ConformityAuthorityV2Details->CommunicationDetails);
 
-
-        $code = $content->certdecltr_ConformityDocDetails->ApplicantDetails->UnifiedCountryCode;
-        $App_UnifiedCountryCode = $this->getUnifiedCountryCode_NAME($code);
-
+        $App_UnifiedCountryCode = '';
+        if (isset($content->certdecltr_ConformityDocDetails->ApplicantDetails->UnifiedCountryCode)) {
+            $code = $content->certdecltr_ConformityDocDetails->ApplicantDetails->UnifiedCountryCode;
+            $App_UnifiedCountryCode = $this->getUnifiedCountryCode_NAME($code);
+        }
 
         $App_Declaring_DocInformationDetails_DocCreationDate = trim($content->certdecltr_ConformityDocDetails->ApplicantDetails->DeclaringOfficerDetails->DocInformationDetails->DocCreationDate);
         $App_Declaring_DocInformationDetails_DocCreationDate = !empty($App_Declaring_DocInformationDetails_DocCreationDate) ? date('Y-m-d', strtotime($App_Declaring_DocInformationDetails_DocCreationDate)) : null;
 
-        $code = $content->certdecltr_ConformityDocDetails->TechnicalRegulationObjectDetails->ManufacturerDetails[0]->UnifiedCountryCode;
-        $Manuf_UnifiedCountryCode = $this->getUnifiedCountryCode_NAME($code);
+        $Manuf_UnifiedCountryCode = '';
+        if (isset($content->certdecltr_ConformityDocDetails->TechnicalRegulationObjectDetails->ManufacturerDetails[0]->UnifiedCountryCode)) {
+            $code = $content->certdecltr_ConformityDocDetails->TechnicalRegulationObjectDetails->ManufacturerDetails[0]->UnifiedCountryCode;
+            $Manuf_UnifiedCountryCode = $this->getUnifiedCountryCode_NAME($code);
+        }
 
         $ProductDetails = $content->certdecltr_ConformityDocDetails->TechnicalRegulationObjectDetails->ProductDetails;
         foreach ($ProductDetails as $productDetail)
@@ -264,6 +269,12 @@ Class TsouzBelgissBy extends simpleParser {
             return $data;
         }
 
+        if (isset($content->certdecltr_ConformityDocDetails->DocAnnexDetails[0]->FormNumberId) && !empty($content->certdecltr_ConformityDocDetails->DocAnnexDetails[0]->FormNumberId)) {
+            $DocAnnexDetails_FormNumberId = implode(', ', $content->certdecltr_ConformityDocDetails->DocAnnexDetails[0]->FormNumberId);
+        } else {
+            $DocAnnexDetails_FormNumberId = '';
+        }
+
         $data[] = [
             'certdecltr_id' => $content->certdecltr_id,
 
@@ -271,7 +282,7 @@ Class TsouzBelgissBy extends simpleParser {
             'DocStartDate' => $DocStartDate,
             'DocValidityDate' => $DocValidityDate,
             'ConformityDocKindCode' => $ConformityDocKindCode_SHORTNAME,
-            'SingleListProductIndicator' => $content->certdecltr_ConformityDocDetails->SingleListProductIndicator != 'false' ? 'Да' : 'Нет',
+            'SingleListProductIndicator' => isset($content->certdecltr_ConformityDocDetails->SingleListProductIndicator) && $content->certdecltr_ConformityDocDetails->SingleListProductIndicator == 'true' ? 'Да' : 'Нет',
             'CertificationSchemeCode' => $CertificationSchemeCode_Name,
             'CertificationObjectCode' => $CertificationObjectCode_Name,
             'TechnicalRegulationId' => $TechnicalRegulationId,
@@ -293,7 +304,7 @@ Class TsouzBelgissBy extends simpleParser {
             'ConformityAuthorityV2Details_CommunicationDetails' => $ConformityAuthorityV2Details_CommunicationDetails,
             'DocAnnexDetails_ObjectOrdinal' => $content->certdecltr_ConformityDocDetails->DocAnnexDetails[0]->ObjectOrdinal,
             'DocAnnexDetails_PageQuantity' => $content->certdecltr_ConformityDocDetails->DocAnnexDetails[0]->PageQuantity,
-            'DocAnnexDetails_FormNumberId' => implode($content->certdecltr_ConformityDocDetails->DocAnnexDetails[0]->FormNumberId, ', '),
+            'DocAnnexDetails_FormNumberId' => $DocAnnexDetails_FormNumberId,
             'App_UnifiedCountryCode' => $App_UnifiedCountryCode,
             'App_BusinessEntityBriefName' => $content->certdecltr_ConformityDocDetails->ApplicantDetails->BusinessEntityBriefName,
             'App_BusinessEntityId' => $content->certdecltr_ConformityDocDetails->ApplicantDetails->BusinessEntityId,
@@ -399,7 +410,7 @@ Class TsouzBelgissBy extends simpleParser {
 
         $addressKindCode = $this->loadAdditionalInformationFromFile('address-kind-code.json');
 
-        $addressLine .= $this->getUnifiedCountryCode_NAME($address->UnifiedCountryCode).", ";
+//        $addressLine .= $this->getUnifiedCountryCode_NAME($address->UnifiedCountryCode).", ";
 
         if (!isset($addressKindCode->items))
         {
