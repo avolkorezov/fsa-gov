@@ -126,7 +126,7 @@ Class Rds_ts_pub_new extends simpleParser {
             'Content-Type: application/json'
         ];
 
-        $perPage = 10000;
+        $perPage = 100;
 //        $perPage = 10;
         $currPage = 0;
         do
@@ -137,26 +137,20 @@ Class Rds_ts_pub_new extends simpleParser {
             $api_decl = $this->loadUrl('https://pub.fsa.gov.ru/api/v1/rds/common/declarations/get', $opt);
             sleep(5);
 //            print_r($api_decl);die();
-            if ( isset($api_decl->total) )
-            {
+            if (isset($api_decl->total)) {
                 $countPage = ceil($api_decl->total / $perPage);
-                if ( $countPage-1 > $currPage )
-                {
+                if ($countPage-1 > $currPage) {
                     $currPage++;
                 }
-            }
-            else
-            {
+            } else {
                 return $sources;
             }
-            if (isset($api_decl->items) && is_array($api_decl->items) && !empty($api_decl->items))
-            {
-                foreach ($api_decl->items as $k => $item)
-                {
+            if (isset($api_decl->items) && is_array($api_decl->items) && !empty($api_decl->items)) {
+                foreach ($api_decl->items as $k => $item) {
 //                    print_r($item);die();
                     $href = "https://pub.fsa.gov.ru/api/v1/rds/common/declarations/".$item->id;
                     $hash = md5($href);
-                    $sources[$hash]= [
+                    $sources[$hash] = [
                         'hash' => $hash,
                         'name' => '',
                         'source' => $href,
