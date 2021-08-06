@@ -135,7 +135,6 @@ Class Rds_ts_pub_new extends simpleParser {
             $opt['post'] = "{\"size\":{$perPage},\"page\":{$currPage},\"filter\":{\"status\":[],\"idDeclType\":[{$type}],\"idCertObjectType\":[],\"idProductType\":[],\"idGroupRU\":[],\"idGroupEEU\":[],\"idTechReg\":[],\"idApplicantType\":[],\"regDate\":{\"minDate\":\"{$regDate}\",\"maxDate\":\"{$endDate}\"},\"endDate\":{\"minDate\":null,\"maxDate\":null},\"columnsSearch\":[],\"idProductEEU\":[],\"idProductRU\":[],\"idDeclScheme\":[],\"awaitForApprove\":null,\"editApp\":null,\"violationSendDate\":null},\"columnsSort\":[{\"column\":\"declDate\",\"sort\":\"DESC\"}]}";
 //            $opt['post'] = "{\"size\":100,\"page\":0,\"filter\":{\"status\":[],\"idDeclType\":[],\"idCertObjectType\":[],\"idProductType\":[],\"idGroupRU\":[],\"idGroupEEU\":[],\"idTechReg\":[],\"idApplicantType\":[],\"regDate\":{\"minDate\":\"2000-10-20\",\"maxDate\":null},\"endDate\":{\"minDate\":null,\"maxDate\":\"2018-10-28\"},\"columnsSearch\":[],\"idProductEEU\":[],\"idProductRU\":[],\"idDeclScheme\":[],\"awaitForApprove\":null,\"editApp\":null,\"violationSendDate\":null},\"columnsSort\":[{\"column\":\"declDate\",\"sort\":\"DESC\"}]}";
             $api_decl = $this->loadUrl('https://pub.fsa.gov.ru/api/v1/rds/common/declarations/get', $opt);
-            sleep(5);
 //            print_r($api_decl);die();
             if (isset($api_decl->total)) {
                 $countPage = ceil($api_decl->total / $perPage);
