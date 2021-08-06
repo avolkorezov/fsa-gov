@@ -126,7 +126,7 @@ Class Rds_ts_pub_new extends simpleParser {
             'Content-Type: application/json'
         ];
 
-        $perPage = 10000;
+        $perPage = 100;
 //        $perPage = 10;
         $currPage = 0;
         do
@@ -137,26 +137,20 @@ Class Rds_ts_pub_new extends simpleParser {
             $api_decl = $this->loadUrl('https://pub.fsa.gov.ru/api/v1/rds/common/declarations/get', $opt);
             sleep(5);
 //            print_r($api_decl);die();
-            if ( isset($api_decl->total) )
-            {
+            if (isset($api_decl->total)) {
                 $countPage = ceil($api_decl->total / $perPage);
-                if ( $countPage-1 > $currPage )
-                {
+                if ($countPage-1 > $currPage) {
                     $currPage++;
                 }
-            }
-            else
-            {
+            } else {
                 return $sources;
             }
-            if (isset($api_decl->items) && is_array($api_decl->items) && !empty($api_decl->items))
-            {
-                foreach ($api_decl->items as $k => $item)
-                {
+            if (isset($api_decl->items) && is_array($api_decl->items) && !empty($api_decl->items)) {
+                foreach ($api_decl->items as $k => $item) {
 //                    print_r($item);die();
                     $href = "https://pub.fsa.gov.ru/api/v1/rds/common/declarations/".$item->id;
                     $hash = md5($href);
-                    $sources[$hash]= [
+                    $sources[$hash] = [
                         'hash' => $hash,
                         'name' => '',
                         'source' => $href,
@@ -482,6 +476,27 @@ Class Rds_ts_pub_new extends simpleParser {
                 $tech_reg .= $dicNormDoc->docDesignation . ' ' . $dicNormDoc->name. '|';
             }
         }
+        $standards_des = '';
+        $standards_name = '';
+        if (isset($api_common->product->identifications)) {
+            foreach ($api_common->product->identifications as $identification) {
+                foreach ($identification->standards as $standard) {
+                    $standards_des .= $standard->designation.'|';
+                    $standards_name .= $standard->name.'|';
+                }
+            }
+        }
+        $standards_des = trim($standards_des, '|');
+        $standards_name = trim($standards_name, '|');
+
+        $product_ts_tn_ved = '';
+        if (isset($api_multi->tnved)) {
+            foreach ($api_multi->tnved as $tnved) {
+                $product_ts_tn_ved .= trim(@$tnved->code . ' '. @$tnved->name).'|';
+            }
+        }
+        $product_ts_tn_ved = trim($product_ts_tn_ved, '|');
+
         $data[] = [
             'STATUS' => @$api_multi->status[0]->name,
             'DECL_NUM' => @$api_common->number,
@@ -531,7 +546,7 @@ Class Rds_ts_pub_new extends simpleParser {
             'a_product_info-rds-product_ts-product_info' => trim(@$a_product_info_rss_product_ts_product_info[0]['__ref']->nodeValue),
             'a_product_info-rds-product_ts-okpd2' => trim(@$product_okpd2->code . ' ' . @$product_okpd2->name),
             'a_product_info-rds-product_ts-okpd2_text' => '',
-            'a_product_info-rds-product_ts-tn_ved' => trim(@$api_multi->tnved[0]->code . ' '. @$api_multi->tnved[0]->name),
+            'a_product_info-rds-product_ts-tn_ved' => $product_ts_tn_ved,
             'a_product_info-rds-product_ts-tn_ved_text' => trim(@$a_product_info_rss_product_ts_tn_ved_text[0]['__ref']->nodeValue),
             'a_product_info-rds-product_ts-name_doc_made_product' => trim(@$a_product_info_rss_product_ts_name_doc_made_product[0]['__ref']->nodeValue),
             'a_product_info-rds-product_ts-product_info_ext' => trim(@$a_product_info_rss_product_ts_product_info_ext[0]['__ref']->nodeValue),
@@ -572,6 +587,9 @@ Class Rds_ts_pub_new extends simpleParser {
 
             'conformityDocType' => isset($conformityDocType) ? $conformityDocType : '',
             'techregProductList' => isset($techregProductList) ? $techregProductList : '',
+
+            'a_product_info-standard_designation' => $standards_des,
+            'a_product_info-name_of_the_standard' => $standards_name,
         ];
 //        print_r($data);die();
 
