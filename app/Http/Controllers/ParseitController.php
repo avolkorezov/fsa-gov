@@ -1329,6 +1329,7 @@ class ParseitController extends Controller
         {
             $rowArray = $row->toArray();
             $fields = [
+                'Дата начала действия' => $rowArray['a_date_begin'],
                 'Технический регламент' => $rowArray['tech_reg'],
                 'Телефон' => $rowArray['a_applicant_info-rds-app_legal_person-phone'],
                 'Электронная почта' => $rowArray['a_applicant_info-rds-app_legal_person-email'],
