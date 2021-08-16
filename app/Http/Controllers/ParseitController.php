@@ -1313,26 +1313,23 @@ class ParseitController extends Controller
         ]);
         $fileName = "RdsTsPub_phone_{$request->offset}_{$request->limit}.csv";
         file_put_contents($fileName, '');
-        $rows = \App\Models\RdsTsPub::
-//            where('tech_reg', '!=', '')
-//            ->where('a_applicant_info-rds-app_legal_person-phone', '!=', '')
-            offset($request->offset)
+        $rows = \App\Models\RdsTsPub::where('tech_reg', '!=', '')
+            ->where('a_applicant_info-rds-app_legal_person-phone', '!=', '')
+            ->where('a_applicant_info-rds-app_legal_person-email', '!=', '')
+            ->offset($request->offset)
             ->limit($request->limit)
             ->get([
-                'a_product_info-rds-product_ts-product_name',
-                'a_product_info-rds-product_ts-tn_ved',
-                'a_product_info-standard_designation',
-                'a_product_info-name_of_the_standard'
-            ]);
+                      'tech_reg',
+                      'a_applicant_info-rds-app_legal_person-phone',
+                      'a_applicant_info-rds-app_legal_person-email',
+                  ]);
         foreach ($rows as $row)
         {
             $rowArray = $row->toArray();
             $fields = [
-                'Общее наименование продукции' => $rowArray['a_product_info-rds-product_ts-product_name'],
-                'Код ТН ВЭД ЕАЭС' => $rowArray['a_product_info-rds-product_ts-tn_ved'],
-                'Наименование (обозначение) продукции' => $rowArray['a_product_info-rds-product_ts-product_name'],
-                'Обозначение стандарта, нормативного документа' => $rowArray['a_product_info-standard_designation'],
-                'Наименование стандарта, нормативного документа' => $rowArray['a_product_info-name_of_the_standard'],
+                'Технический регламент' => $rowArray['tech_reg'],
+                'Телефон' => $rowArray['a_applicant_info-rds-app_legal_person-phone'],
+                'Электронная почта' => $rowArray['a_applicant_info-rds-app_legal_person-email'],
             ];
 //        print_r($fields);die();
 //        $line = '"';
