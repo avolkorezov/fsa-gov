@@ -1316,9 +1316,11 @@ class ParseitController extends Controller
         $rows = \App\Models\RdsTsPub::where('tech_reg', '!=', '')
             ->where('a_applicant_info-rds-app_legal_person-phone', '!=', '')
             ->where('a_applicant_info-rds-app_legal_person-email', '!=', '')
+            ->where('a_date_begin', '>', '2020-06-01')
             ->offset($request->offset)
             ->limit($request->limit)
             ->get([
+                      'a_date_begin',
                       'tech_reg',
                       'a_applicant_info-rds-app_legal_person-phone',
                       'a_applicant_info-rds-app_legal_person-email',
