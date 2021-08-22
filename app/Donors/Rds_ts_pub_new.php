@@ -2,13 +2,8 @@
 
 namespace App\Donors;
 
-use App\Http\Controllers\LoggerController;
-use App\Models\ProxyList;
-use function GuzzleHttp\Psr7\build_query;
-use ParseIt\_String;
 use ParseIt\nokogiri;
 use App\Donors\ParseIt\simpleParser;
-use ParseIt\ParseItHelpers;
 
 Class Rds_ts_pub_new extends simpleParser {
 
@@ -123,7 +118,13 @@ Class Rds_ts_pub_new extends simpleParser {
         $opt['headers'] = [
             "Authorization: Bearer {$this->getToken()}",
             "Cookie: JSESSIONID={$this->getSession()}",
-            'Content-Type: application/json'
+            'Content-Type: application/json',
+            'sec-ch-ua: "Chromium";v="92", " Not A;Brand";v="99", "Google Chrome";v="92"',
+            'sec-ch-ua-mobile: ?0',
+            'Sec-Fetch-Dest: empty',
+            'Sec-Fetch-Mode: cors',
+            'Sec-Fetch-Site: same-origin',
+            'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'
         ];
 
         $perPage = 100;
@@ -139,6 +140,7 @@ Class Rds_ts_pub_new extends simpleParser {
 //            print_r($api_decl);die();
             if (isset($api_decl->total)) {
                 $countPage = ceil($api_decl->total / $perPage);
+                print_r(['countPage' => $countPage]);
                 if ($countPage-1 > $currPage) {
                     $currPage++;
                 }
@@ -164,10 +166,10 @@ Class Rds_ts_pub_new extends simpleParser {
                     ];
                 }
             }
-//            if ($currPage === 1) {
-//                break;
-//            }
-        } while($nextPage === $currPage || $i > 20);
+            if ($i >= 5) {
+                break;
+            }
+        } while(true);
 
         return $sources;
     }
