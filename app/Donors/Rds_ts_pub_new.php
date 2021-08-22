@@ -166,9 +166,10 @@ Class Rds_ts_pub_new extends simpleParser {
                     ];
                 }
             }
-            if ($i >= 5) {
+            if ($i >= 10) {
                 break;
             }
+            sleep(5);
         } while(true);
 
         return $sources;
