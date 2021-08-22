@@ -30,7 +30,7 @@ Class TsouzBelgissBy extends simpleParser {
 
         $opt['cookieFile'] = $this->cookieFile;
 
-        $opt['proxy'] = '85.239.42.173:8085';
+        $opt['proxy'] = '85.239.42.118:8085';
 
         $opt['headers'] = [
             "Host: api.belgiss.by",
@@ -105,7 +105,7 @@ Class TsouzBelgissBy extends simpleParser {
 //        $number = 677173;
 
         $source['cookieFile'] = $this->cookieFile;
-        $source['proxy'] = '85.239.42.173:8085';
+        $source['proxy'] = '85.239.42.118:8085';
 
         $source['host'] = 'api.belgiss.by';
         $source['origin'] = 'https://tsouz.belgiss.by';
