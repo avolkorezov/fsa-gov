@@ -157,7 +157,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
     public function getData($url, $source = [])
     {
         $data = false;
-//        $url = preg_replace('%\d+$%uis', 2042613, $url);
+        $url = preg_replace('%\d+$%uis', 2946809, $url);
         $source['refer'] = 'https://pub.fsa.gov.ru/rss/certificate';
         $source['origin'] = 'https://pub.fsa.gov.ru';
         $source['host'] = 'pub.fsa.gov.ru';
@@ -450,9 +450,9 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
             'a_manufacturer_info-rss-man_legal_person-ogrn' => @$api_common->manufacturer->idLegalSubjectType != 3 ? @$api_common->manufacturer->ogrn : '',
 
             'cert_doc_issued-document_info' => trim(@$a_cert_doc_issued_rss_cert_doc_issued_document_info[0]['__ref']->nodeValue),
-            'cert_doc_issued-testing_lab-0-basis_for_certificate' => trim(@$a_cert_doc_issued_rss_cert_doc_issued_testing_lab_basis_for_certificate[0]['__ref']->nodeValue),
+            'cert_doc_issued-testing_lab-0-basis_for_certificate' => @$api_common->testingLabs[0]->fullName,
 
-            'cert_doc_issued-testing_lab-1-basis_for_certificate' => @$api_common->testingLabs[0]->basis,
+            'cert_doc_issued-testing_lab-1-basis_for_certificate' => @$api_common->testingLabs[0]->fullName,
             'cert_doc_issued-testing_lab-0-reg_number' => @$api_common->testingLabs[0]->regNumber,
             'a_cert_doc_issued-rss-cert_doc_issued-additional_info' => trim(@$a_cert_doc_issued_rss_cert_doc_issued_additional_info[0]['__ref']->nodeValue),
 
