@@ -4,8 +4,9 @@ namespace App\Donors;
 
 use App\Donors\ParseIt\simpleParser;
 
-Class TsouzBelgissBy extends simpleParser {
-
+Class TsouzBelgissBy extends simpleParser
+{
+    public const PROXY = '85.239.42.203:8085';
     public $data = [];
     public $reload = [];
     public $project = 'tsouz.belgiss.by';
@@ -30,7 +31,7 @@ Class TsouzBelgissBy extends simpleParser {
 
         $opt['cookieFile'] = $this->cookieFile;
 
-        $opt['proxy'] = '85.239.42.203:8085';
+        $opt['proxy'] = self::PROXY;
 
         $opt['headers'] = [
             "Host: api.belgiss.by",
@@ -105,7 +106,7 @@ Class TsouzBelgissBy extends simpleParser {
 //        $number = 677173;
 
         $source['cookieFile'] = $this->cookieFile;
-        $source['proxy'] = '85.239.42.118:8085';
+        $source['proxy'] = self::PROXY;
 
         $source['host'] = 'api.belgiss.by';
         $source['origin'] = 'https://tsouz.belgiss.by';
