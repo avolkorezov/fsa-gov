@@ -169,7 +169,7 @@ Class Rds_ts_pub_new extends simpleParser {
             if ($i >= 10) {
                 break;
             }
-            sleep(5);
+            sleep(8);
         } while(true);
 
         return $sources;
