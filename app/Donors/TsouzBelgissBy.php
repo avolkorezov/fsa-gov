@@ -6,7 +6,7 @@ use App\Donors\ParseIt\simpleParser;
 
 Class TsouzBelgissBy extends simpleParser
 {
-    public const PROXY = '85.239.42.203:8085';
+    const PROXY = '85.239.42.203:8085';
     public $data = [];
     public $reload = [];
     public $project = 'tsouz.belgiss.by';
