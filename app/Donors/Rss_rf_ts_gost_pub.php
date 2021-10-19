@@ -157,7 +157,7 @@ Class Rss_rf_ts_gost_pub extends simpleParser {
     public function getData($url, $source = [])
     {
         $data = false;
-        $url = preg_replace('%\d+$%uis', 2946809, $url);
+//        $url = preg_replace('%\d+$%uis', 2946809, $url);
         $source['refer'] = 'https://pub.fsa.gov.ru/rss/certificate';
         $source['origin'] = 'https://pub.fsa.gov.ru';
         $source['host'] = 'pub.fsa.gov.ru';
