@@ -6,7 +6,33 @@ use App\Donors\ParseIt\simpleParser;
 
 Class TsouzBelgissBy extends simpleParser
 {
-    const PROXY = '85.239.42.241:8085';
+    const PROXY = [
+        '93.177.119.146:8085',
+        '217.145.226.43:8085',
+        '91.222.236.206:8085',
+        '185.88.100.67:8085',
+        '193.203.10.220:8085',
+        '194.156.124.111:8085',
+        '185.61.217.26:8085',
+        '45.66.208.147:8085',
+        '193.93.195.207:8085',
+        '45.148.233.59:8085',
+        '93.177.118.70:8085',
+        '194.104.10.88:8085',
+        '62.76.234.116:8085',
+        '194.58.33.155:8085',
+        '45.80.105.73:8085',
+        '213.108.2.114:8085',
+        '85.202.194.114:8085',
+        '185.250.44.218:8085',
+        '193.31.126.91:8085',
+        '5.133.123.190:8085',
+        '147.78.183.149:8085',
+        '185.250.46.63:8085',
+        '185.250.45.224:8085',
+        '194.58.68.206:8085',
+        '46.161.60.12:8085',
+    ];
     public $data = [];
     public $reload = [];
     public $project = 'tsouz.belgiss.by';
@@ -31,7 +57,7 @@ Class TsouzBelgissBy extends simpleParser
 
         $opt['cookieFile'] = $this->cookieFile;
 
-        $opt['proxy'] = self::PROXY;
+        $opt['proxy'] = $this->getProxy();
 
         $opt['headers'] = [
             "Host: api.belgiss.by",
@@ -106,7 +132,8 @@ Class TsouzBelgissBy extends simpleParser
 //        $number = 677173;
 
         $source['cookieFile'] = $this->cookieFile;
-        $source['proxy'] = self::PROXY;
+
+        $source['proxy'] = $this->getProxy();
 
         $source['host'] = 'api.belgiss.by';
         $source['origin'] = 'https://tsouz.belgiss.by';
@@ -549,5 +576,11 @@ Class TsouzBelgissBy extends simpleParser
     {
         $content = file_get_contents($filename);
         return json_decode($content);
+    }
+
+    protected function getProxy(): string
+    {
+        $key = mt_rand(0, count(self::PROXY) - 1);
+        return self::PROXY[$key];
     }
 }
