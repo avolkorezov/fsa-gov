@@ -31,15 +31,14 @@ use App\Models\RssRfPub;
 use App\Models\RssTsPub;
 use App\Models\RTRTS01001;
 use App\Models\Source;
-use App\ParseIt;
 use Illuminate\Http\Request;
 use Activity;
-use ParseIt\nokogiri;
 Use Validator;
-use \Curl\MultiCurl;
 
 class ParseitController extends Controller
 {
+    protected $execTimeParsingData = 180;
+    protected $bufferTime = 20;
     /**
      * Create a new controller instance.
      *
@@ -402,9 +401,8 @@ class ParseitController extends Controller
 
     public function rss_rf_ts_gost_pub(Request $request)
     {
-        $exec_time = env('RUN_TIME', 0);
         $start = time();
-        @set_time_limit($exec_time);
+        @set_time_limit($this->execTimeParsingData);
         $donorClassName = 'Rss_rf_ts_gost_pub';
         $donor = new Rss_rf_ts_gost_pub();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
@@ -472,7 +470,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
+            if ($start < $this->getCurrentTimeWithDiff())
             {
                 die('End exec time');
             }
@@ -482,9 +480,8 @@ class ParseitController extends Controller
 
     public function rds_ts_pub_new(Request $request)
     {
-        $exec_time = env('RUN_TIME', 0);
         $start = time();
-        @set_time_limit($exec_time);
+        @set_time_limit($this->execTimeParsingData);
         $donorClassName = 'Rds_ts_pub_new';
         $donor = new Rds_ts_pub_new();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
@@ -552,7 +549,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
+            if ($start < $this->getCurrentTimeWithDiff())
             {
                 die('End exec time');
             }
@@ -565,9 +562,8 @@ class ParseitController extends Controller
     {
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
-        $exec_time = env('RUN_TIME', 0);
         $start = time();
-        @set_time_limit($exec_time);
+        @set_time_limit($this->execTimeParsingData);
         $donorClassName = 'TsouzBelgissBy';
         $donor = new TsouzBelgissBy();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
@@ -629,7 +625,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
+            if ($start < $this->getCurrentTimeWithDiff())
             {
                 die('End exec time');
             }
@@ -642,9 +638,8 @@ class ParseitController extends Controller
     {
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
-        $exec_time = env('RUN_TIME', 0);
         $start = time();
-        @set_time_limit($exec_time);
+        @set_time_limit($this->execTimeParsingData);
         $donorClassName = 'ArmnabAm_LaboratoryList';
         $donor = new ArmnabAm_LaboratoryList();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
@@ -696,7 +691,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
+            if ($start < $this->getCurrentTimeWithDiff())
             {
                 die('End exec time');
             }
@@ -708,9 +703,8 @@ class ParseitController extends Controller
     {
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
-        $exec_time = env('RUN_TIME', 0);
         $start = time();
-        @set_time_limit($exec_time);
+        @set_time_limit($this->execTimeParsingData);
         $donorClassName = 'ArmnabAm_CertListMode10';
         $donor = new ArmnabAm_CertListMode10();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
@@ -817,7 +811,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
+            if ($start < $this->getCurrentTimeWithDiff())
             {
                 die('End exec time');
             }
@@ -829,9 +823,8 @@ class ParseitController extends Controller
     {
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
-        $exec_time = env('RUN_TIME', 0);
         $start = time();
-        @set_time_limit($exec_time);
+        @set_time_limit($this->execTimeParsingData);
         $donorClassName = 'ArmnabAm_Cert';
         $donor = new ArmnabAm_Cert();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
@@ -897,7 +890,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
+            if ($start < $this->getCurrentTimeWithDiff())
             {
                 die('End exec time');
             }
@@ -909,9 +902,8 @@ class ParseitController extends Controller
     {
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
-        $exec_time = env('RUN_TIME', 0);
         $start = time();
-        @set_time_limit($exec_time);
+        @set_time_limit($this->execTimeParsingData);
         $donorClassName = 'ArmnabAm_CertList';
         $donor = new ArmnabAm_CertList();
         $donor->cookieFile = ParserController::getCookieFileName($donorClassName);
@@ -1011,7 +1003,7 @@ class ParseitController extends Controller
             {
                 die('Done');
             }
-            if ($start < time() - ($exec_time - 10))
+            if ($start < $this->getCurrentTimeWithDiff())
             {
                 die('End exec time');
             }
@@ -1379,5 +1371,10 @@ class ParseitController extends Controller
             $line.="\r";
             file_put_contents($fileName, $line, FILE_APPEND);
         }
+    }
+
+    protected function getCurrentTimeWithDiff(): int
+    {
+        return time() - ($this->execTimeParsingData - $this->bufferTime);
     }
 }
