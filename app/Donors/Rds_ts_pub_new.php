@@ -178,7 +178,7 @@ Class Rds_ts_pub_new extends simpleParser {
     public function getData($url, $source = [])
     {
         $data = false;
-//        $url = preg_replace('%\d+$%uis', 13357331, $url);
+//        $url = preg_replace('%\d+$%uis', 16253062, $url);
 //        print_r($url);die();
         $source['refer'] = 'https://pub.fsa.gov.ru/rds/declaration';
 //        $source['refer'] = preg_replace('%\d+$%uis', 13547646, $source['refer']);
@@ -228,6 +228,15 @@ Class Rds_ts_pub_new extends simpleParser {
                     foreach ( $testingLab->addresses as $address )
                     {
                         $addressType[$address->idAddrType] = $address->idAddrType;
+                    }
+                }
+                if (isset($testingLab->protocols) && is_array($testingLab->protocols)) {
+                    foreach ($testingLab->protocols as $protocol) {
+                        if (isset($testingLabsProtocol)) {
+                            break;
+                        }
+                        $testingLabsProtocol = $protocol;
+                        break;
                     }
                 }
             }
@@ -591,6 +600,9 @@ Class Rds_ts_pub_new extends simpleParser {
 
             'a_product_info-standard_designation' => $standards_des,
             'a_product_info-name_of_the_standard' => $standards_name,
+
+            'testingLabs-protocol_number' => $testingLabsProtocol->number,
+            'testingLabs-protocol_date' => date('Y-m-d', strtotime($testingLabsProtocol->date)),
         ];
 //        print_r($data);die();
 

@@ -245,6 +245,8 @@ class RdsTsPub extends Model
         'a_is_date_finish',
         'conformityDocType',
         'techregProductList',
+        'testingLabs-protocol_number',
+        'testingLabs-protocol_date',
         'a_product_info-standard_designation',
         'a_product_info-name_of_the_standard'
     ];
