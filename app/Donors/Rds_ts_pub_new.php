@@ -601,8 +601,8 @@ Class Rds_ts_pub_new extends simpleParser {
             'a_product_info-standard_designation' => $standards_des,
             'a_product_info-name_of_the_standard' => $standards_name,
 
-            'testingLabs-protocol_number' => $testingLabsProtocol->number,
-            'testingLabs-protocol_date' => date('Y-m-d', strtotime($testingLabsProtocol->date)),
+            'testingLabs-protocol_number' => @$testingLabsProtocol->number,
+            'testingLabs-protocol_date' => isset($testingLabsProtocol) ? date('Y-m-d', strtotime($testingLabsProtocol->date)) : null,
         ];
 //        print_r($data);die();
 
